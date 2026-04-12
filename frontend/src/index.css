@@ -206,6 +206,12 @@
   background: var(--muted-foreground);
 }
 
+/* Date input calendar icon — white in dark mode */
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
 /* Utility classes */
 @utility pnl-positive {
   color: #22c55e;

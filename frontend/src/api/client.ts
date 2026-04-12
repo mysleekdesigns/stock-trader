@@ -91,26 +91,21 @@ export interface Strategy {
 }
 
 export interface BacktestRequest {
-  strategyId: string
-  startDate: string
-  endDate: string
+  strategy: string
+  start_date: string
+  end_date: string
   symbols: string[]
-  initialCapital: number
-  params?: Record<string, unknown>
+  initial_capital: number
+  timeframe?: string
 }
 
 export interface BacktestResult {
   id: string
-  strategyId: string
-  totalReturn: number
-  sharpeRatio: number
-  maxDrawdown: number
-  winRate: number
-  tradesCount: number
-  equityCurve: { time: string; value: number }[]
-  drawdownCurve: { time: string; value: number }[]
-  trades: Order[]
+  status: 'pending' | 'completed' | 'failed'
   metrics: Record<string, number>
+  equity_curve: number[]
+  trades: Record<string, unknown>[]
+  report_url?: string | null
 }
 
 export interface ModelInfo {
@@ -185,9 +180,33 @@ export async function cancelOrder(id: string): Promise<void> {
   await client.delete(`/orders/${id}`)
 }
 
-export async function runBacktest(request: BacktestRequest): Promise<BacktestResult> {
+export async function launchBacktest(request: BacktestRequest): Promise<BacktestResult> {
   const { data } = await client.post<BacktestResult>('/backtest', request)
   return data
+}
+
+export async function getBacktestStatus(id: string): Promise<BacktestResult> {
+  const { data } = await client.get<BacktestResult>(`/backtest/${id}`)
+  return data
+}
+
+export async function runBacktest(
+  request: BacktestRequest,
+  onProgress?: (status: string) => void,
+): Promise<BacktestResult> {
+  const launched = await launchBacktest(request)
+  if (launched.status !== 'pending') return launched
+
+  // Poll until complete or failed
+  const POLL_INTERVAL = 1000
+  const MAX_POLLS = 120
+  for (let i = 0; i < MAX_POLLS; i++) {
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL))
+    onProgress?.(`Running... (${i + 1}s)`)
+    const result = await getBacktestStatus(launched.id)
+    if (result.status === 'completed' || result.status === 'failed') return result
+  }
+  throw new Error('Backtest timed out after 120s')
 }
 
 export async function getModels(): Promise<ModelInfo[]> {
