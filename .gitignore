@@ -1,0 +1,72 @@
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+
+# MCP Configuration
+.mcp.json
+
+# Cache
+cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# UV
+.python-version
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.hypothesis/
+
+# MLflow
+mlruns/
+mlflow.db
+
+# Model artifacts
+models/artifacts/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Docker
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# Snapshots & temp
+snapshots/
+jobs/
+webhooks/
+*.tmp
