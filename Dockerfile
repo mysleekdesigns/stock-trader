@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     ca-certificates \
     gnupg \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
 
 # Node.js 22 (for Claude Code + frontend)
@@ -20,7 +21,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Python 3.12 via deadsnakes
+# Python 3.12 (ships with Ubuntu 24.04)
 RUN apt-get update && apt-get install -y \
     python3.12 \
     python3.12-venv \
@@ -37,6 +38,14 @@ ENV PATH="/root/.local/bin:$PATH"
 # Claude Code
 RUN npm install -g @anthropic-ai/claude-code
 
+# Create non-root user (Claude Code refuses --dangerously-skip-permissions as root)
+RUN useradd -m -s /bin/bash dev \
+    && echo "dev ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Copy UV to dev user
+RUN cp -r /root/.local /home/dev/.local && chown -R dev:dev /home/dev/.local
+ENV PATH="/home/dev/.local/bin:$PATH"
+
 # Working directory
 WORKDIR /app
 
@@ -46,11 +55,17 @@ COPY . /app
 # Remove host-specific files that don't belong in the container
 RUN rm -f /app/.mcp.json /app/.env
 
-# Git setup (Claude Code needs a git repo)
-RUN git config --global user.email "dev@container" \
+# Give dev user ownership
+RUN chown -R dev:dev /app
+
+# Git setup
+RUN su dev -c 'git config --global user.email "dev@container" \
     && git config --global user.name "Container Dev" \
     && git config --global init.defaultBranch main \
-    && (cd /app && git init && git add -A && git commit -m "initial" --allow-empty) 2>/dev/null || true
+    && cd /app && git init && git add -A && git commit -m "initial"'
+
+# Switch to non-root user
+USER dev
 
 # Default: drop into a shell
 CMD ["bash"]

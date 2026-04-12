@@ -70,3 +70,9 @@ snapshots/
 jobs/
 webhooks/
 *.tmp
+
+# Output artifacts
+output/
+
+# Model registry
+model_registry/
