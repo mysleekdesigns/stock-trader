@@ -219,4 +219,69 @@ export async function getRiskMetrics(): Promise<RiskMetrics> {
   return data
 }
 
+// --- ORB Scanner ---
+
+export interface ORBState {
+  symbol: string
+  date: string | null
+  or_high: number | null
+  or_low: number | null
+  or_avg_volume: number | null
+  or_bar_count: number
+  or_complete: boolean
+  breached: boolean
+  vwap: number | null
+}
+
+export interface ORBSignalResponse {
+  symbol: string
+  direction: string
+  strength: number
+  confidence: number
+  timestamp: string
+  metadata: Record<string, any>
+}
+
+export interface ORBScanResult {
+  symbol: string
+  state: ORBState
+  signal: ORBSignalResponse | null
+  bars: { time: string; open: number; high: number; low: number; close: number; volume: number }[]
+}
+
+export interface ORBConfigResponse {
+  volume_multiplier: number
+  or_start: string
+  or_end: string
+  signal_cutoff: string
+}
+
+export async function scanORB(symbol: string): Promise<ORBScanResult> {
+  const { data } = await client.post<ORBScanResult>(`/orb/scan/${symbol}`)
+  return data
+}
+
+export async function getORBState(symbol: string): Promise<ORBState> {
+  const { data } = await client.get<ORBState>(`/orb/state/${symbol}`)
+  return data
+}
+
+export async function getORBSignals(limit = 50): Promise<ORBSignalResponse[]> {
+  const { data } = await client.get<ORBSignalResponse[]>('/orb/signals', { params: { limit } })
+  return data
+}
+
+export async function getORBConfig(): Promise<ORBConfigResponse> {
+  const { data } = await client.get<ORBConfigResponse>('/orb/config')
+  return data
+}
+
+export async function updateORBConfig(config: {
+  volume_multiplier: number
+  signal_cutoff: string
+}): Promise<ORBConfigResponse> {
+  const { data } = await client.post<ORBConfigResponse>('/orb/config', config)
+  return data
+}
+
 export default client

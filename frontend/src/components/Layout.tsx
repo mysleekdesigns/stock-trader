@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard,
   GitBranch,
+  Crosshair,
   FlaskConical,
   Brain,
   Receipt,
@@ -19,6 +20,7 @@ import { Button } from '@/components/ui/button'
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/strategies', icon: GitBranch, label: 'Strategies' },
+  { to: '/orb', icon: Crosshair, label: 'ORB Scanner' },
   { to: '/backtest', icon: FlaskConical, label: 'Backtest' },
   { to: '/models', icon: Brain, label: 'Models' },
   { to: '/orders', icon: Receipt, label: 'Orders' },

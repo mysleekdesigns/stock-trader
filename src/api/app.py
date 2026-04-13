@@ -167,6 +167,7 @@ def create_app() -> FastAPI:
         dashboard,
         market_data,
         models,
+        orb,
         orders,
         risk,
         strategies,
@@ -180,6 +181,7 @@ def create_app() -> FastAPI:
     app.include_router(backtest.router)
     app.include_router(models.router)
     app.include_router(risk.router)
+    app.include_router(orb.router)
     app.include_router(websocket.router)
 
     # -- Health check --

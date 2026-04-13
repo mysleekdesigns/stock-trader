@@ -6,6 +6,7 @@ import Backtest from './pages/Backtest'
 import Models from './pages/Models'
 import Orders from './pages/Orders'
 import Settings from './pages/Settings'
+import ORBScanner from './pages/ORBScanner'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/strategies" element={<Strategies />} />
+        <Route path="/orb" element={<ORBScanner />} />
         <Route path="/backtest" element={<Backtest />} />
         <Route path="/models" element={<Models />} />
         <Route path="/orders" element={<Orders />} />
