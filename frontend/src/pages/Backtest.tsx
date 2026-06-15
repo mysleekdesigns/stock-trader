@@ -208,8 +208,13 @@ export default function Backtest() {
                   <SelectValue placeholder="Select strategy..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mean_reversion">Mean Reversion</SelectItem>
                   <SelectItem value="momentum">Momentum Alpha</SelectItem>
+                  <SelectItem value="mean_reversion">Mean Reversion</SelectItem>
+                  <SelectItem value="donchian_breakout">Donchian / Turtle Breakout</SelectItem>
+                  <SelectItem value="supertrend">Supertrend</SelectItem>
+                  <SelectItem value="macd_trend">MACD Trend</SelectItem>
+                  <SelectItem value="connors_rsi2">Connors RSI-2</SelectItem>
+                  <SelectItem value="dual_momentum">Dual Momentum</SelectItem>
                   <SelectItem value="lstm">LSTM Predictor</SelectItem>
                   <SelectItem value="ensemble">Ensemble</SelectItem>
                 </SelectContent>

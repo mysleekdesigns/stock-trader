@@ -110,6 +110,11 @@ class BacktestEngine:
 
         self._feature_lookback: int = config.get("feature_lookback", 100)
 
+        # Fraction of equity allocated to a single signal at full strength.
+        # Defaults to 0.10 (the multi-strategy/multi-symbol risk cap); raise it
+        # for single-strategy evaluations that should deploy most of the book.
+        self._max_position_pct: float = float(config.get("max_position_pct", 0.1))
+
         # Bookkeeping.
         self._pending_orders: list[Order] = []
         self._open_positions: dict[str, dict[str, Any]] = {}  # symbol -> info
@@ -499,8 +504,9 @@ class BacktestEngine:
                 continue
 
             equity = float(self._get_total_equity(bar_dict))
-            # Allocate a fraction of equity proportional to signal strength.
-            allocation = equity * signal.strength * 0.1  # 10% max per signal
+            # Allocate a fraction of equity proportional to signal strength,
+            # capped at ``max_position_pct`` of the book per signal.
+            allocation = equity * signal.strength * self._max_position_pct
             price = bar.close
             if price <= 0 or allocation <= 0:
                 continue

@@ -28,8 +28,13 @@ from src.features.pipeline import FeaturePipeline
 from src.features.technical import registry
 from src.strategies.base import BaseStrategyABC
 from src.strategies.composite import CompositeStrategy
+from src.strategies.connors_rsi2 import ConnorsRSI2Strategy
+from src.strategies.donchian_breakout import DonchianBreakoutStrategy
+from src.strategies.dual_momentum import DualMomentumStrategy
+from src.strategies.macd_trend import MACDTrendStrategy
 from src.strategies.mean_reversion import MeanReversionStrategy
 from src.strategies.momentum import MomentumStrategy
+from src.strategies.supertrend import SupertrendStrategy
 
 if TYPE_CHECKING:
     from src.api.schemas.backtest import BacktestRequest
@@ -47,7 +52,29 @@ class NoDataError(RuntimeError):
 
 # Strategies the real engine can run today.  ``lstm`` / other ML strategies
 # need a trained model artifact and are intentionally excluded.
-SUPPORTED_STRATEGIES = {"momentum", "mean_reversion", "ensemble"}
+SUPPORTED_STRATEGIES = {
+    "momentum",
+    "mean_reversion",
+    "ensemble",
+    "donchian_breakout",
+    "supertrend",
+    "connors_rsi2",
+    "macd_trend",
+    "dual_momentum",
+}
+
+# Per-symbol strategy constructors keyed by name.  Each takes a single symbol
+# and returns a fresh, single-symbol strategy instance (the runner keeps one
+# per symbol so internal indicator/position state stays isolated).
+_STRATEGY_FACTORIES: dict[str, Any] = {
+    "momentum": MomentumStrategy,
+    "mean_reversion": MeanReversionStrategy,
+    "donchian_breakout": DonchianBreakoutStrategy,
+    "supertrend": SupertrendStrategy,
+    "connors_rsi2": ConnorsRSI2Strategy,
+    "macd_trend": MACDTrendStrategy,
+    "dual_momentum": DualMomentumStrategy,
+}
 
 # Calendar-day warmup buffer fetched *before* the requested start so that
 # look-back indicators (EMA-50, ADX-14, SMA-200, …) are warm by the window start.
@@ -174,16 +201,15 @@ def _build_strategy(
     symbols: list[str],
     trade_start: date | None = None,
 ) -> BaseStrategyABC:
-    if name == "momentum":
-        instances = {s: MomentumStrategy(s) for s in symbols}
-    elif name == "mean_reversion":
-        instances = {s: MeanReversionStrategy(s) for s in symbols}
-    elif name == "ensemble":
+    if name == "ensemble":
         # Confidence-weighted combination of momentum + mean reversion per symbol.
         instances = {
             s: CompositeStrategy([MomentumStrategy(s), MeanReversionStrategy(s)])
             for s in symbols
         }
+    elif name in _STRATEGY_FACTORIES:
+        factory = _STRATEGY_FACTORIES[name]
+        instances = {s: factory(s) for s in symbols}
     else:
         raise UnsupportedStrategyError(
             f"Strategy '{name}' is not runnable by the backtest engine. "

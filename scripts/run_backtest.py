@@ -14,9 +14,13 @@ import asyncio
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import structlog
 import yaml
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 logger = structlog.get_logger(__name__)
 
@@ -59,8 +63,27 @@ def build_parser() -> argparse.ArgumentParser:
         "--strategy",
         type=str,
         default="momentum",
-        choices=["momentum"],
+        choices=[
+            "momentum",
+            "mean_reversion",
+            "ensemble",
+            "donchian_breakout",
+            "supertrend",
+            "connors_rsi2",
+            "macd_trend",
+            "dual_momentum",
+        ],
         help="Strategy to use.",
+    )
+    parser.add_argument(
+        "--max-position-pct",
+        type=float,
+        default=0.95,
+        help=(
+            "Fraction of equity deployed per signal at full strength. The app "
+            "default is 0.10 (multi-strategy cap); 0.95 gives a single strategy "
+            "near-full deployment for standalone evaluation."
+        ),
     )
     parser.add_argument(
         "--initial-capital",
@@ -176,7 +199,7 @@ async def fetch_bars_db(
 # Bars to DataFrame conversion
 # ---------------------------------------------------------------------------
 
-def bars_to_dataframes(bars_by_symbol: dict[str, list]) -> dict[str, "pd.DataFrame"]:
+def bars_to_dataframes(bars_by_symbol: dict[str, list]) -> dict[str, pd.DataFrame]:
     """Convert lists of Bar objects to pandas DataFrames keyed by symbol."""
     import pandas as pd
 
@@ -205,26 +228,20 @@ def bars_to_dataframes(bars_by_symbol: dict[str, list]) -> dict[str, "pd.DataFra
 # Strategy factory
 # ---------------------------------------------------------------------------
 
-def create_strategy(strategy_name: str, config: dict):
-    """Instantiate the requested strategy with config parameters."""
-    strategy_config = config.get("strategies", {}).get(strategy_name, {})
-    params = strategy_config.get("params", {})
-    weight = strategy_config.get("weight", 1.0)
+def create_strategy(strategy_name: str, symbols: list[str]):
+    """Build a per-symbol strategy dispatcher for *strategy_name*.
 
-    if strategy_name == "momentum":
-        try:
-            from src.strategies.momentum import MomentumStrategy
-            # symbol="*" is a placeholder — the backtest engine overrides
-            # signal.symbol with the actual symbol from the bar dict.
-            return MomentumStrategy(
-                symbol="SPY",
-                weight=weight,
-            )
-        except ImportError:
-            logger.warning("momentum_strategy_not_available", fallback="base_stub")
-            return None
-    else:
-        logger.error("unknown_strategy", name=strategy_name)
+    Delegates to :func:`src.backtest.runner._build_strategy`, which keeps one
+    single-symbol strategy instance per symbol (so per-symbol indicator and
+    position state stay isolated) and routes each bar's features to the right
+    instance by ``features["symbol"]``.
+    """
+    from src.backtest.runner import UnsupportedStrategyError, _build_strategy
+
+    try:
+        return _build_strategy(strategy_name, [s.upper() for s in symbols])
+    except UnsupportedStrategyError as exc:
+        logger.error("unknown_strategy", name=strategy_name, error=str(exc))
         return None
 
 
@@ -318,9 +335,6 @@ async def async_main(args: argparse.Namespace) -> int:
     start_dt = datetime.strptime(args.start, "%Y-%m-%d")
     end_dt = datetime.strptime(args.end, "%Y-%m-%d")
 
-    # Load configs
-    config = load_configs(args.config_dir)
-
     # Fetch data -- try DB first, fall back to yfinance
     bars_by_symbol: dict[str, list] = {}
 
@@ -350,21 +364,31 @@ async def async_main(args: argparse.Namespace) -> int:
     logger.info("data_prepared", symbols=list(dfs.keys()))
 
     # Initialize feature pipeline
-    from src.features.technical import registry as tech_registry
     import src.features.price  # noqa: F401 -- registers price features
+    from src.backtest.runner import _FEATURE_KEY_TO_REGISTRY
     from src.features.pipeline import FeaturePipeline
+    from src.features.technical import registry as tech_registry
 
-    pipeline = FeaturePipeline(registry=tech_registry, normalize=False)
-
-    # Create strategy
-    strategy = create_strategy(args.strategy, config)
+    # Create strategy (per-symbol dispatcher).
+    strategy = create_strategy(args.strategy, args.symbols)
     if strategy is None:
         logger.warning("strategy_unavailable_running_data_only")
 
+    # Compute only the features the strategy needs.  Computing the *full*
+    # registry would drop every row whenever any long-window feature (e.g.
+    # sma_200) is still NaN under a short look-back, starving the strategy.
+    if strategy is not None:
+        required = sorted(
+            {_FEATURE_KEY_TO_REGISTRY.get(k, k) for k in strategy.get_required_features()}
+        )
+        pipeline = FeaturePipeline(tech_registry, feature_names=required, normalize=False)
+    else:
+        pipeline = FeaturePipeline(registry=tech_registry, normalize=False)
+
     # Run backtest
     try:
-        from src.backtest.engine import BacktestEngine, BacktestResult
         from src.backtest.data_handler import DataHandler
+        from src.backtest.engine import BacktestEngine
         from src.core.types import TimeFrame
 
         timeframe = TimeFrame(args.timeframe)
@@ -374,6 +398,8 @@ async def async_main(args: argparse.Namespace) -> int:
             "data_handler": data_handler,
             "strategy": strategy,
             "feature_pipeline": pipeline,
+            "feature_lookback": 250,
+            "max_position_pct": args.max_position_pct,
         })
 
         result = await engine.run_async(
@@ -390,7 +416,6 @@ async def async_main(args: argparse.Namespace) -> int:
         logger.warning("backtest_engine_not_available_computing_features_only")
 
         # Compute features as a demo
-        import pandas as pd
 
         for symbol, df in dfs.items():
             logger.info("computing_features", symbol=symbol, rows=len(df))
