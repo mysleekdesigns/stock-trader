@@ -13,14 +13,16 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 # Import application settings and models
-from src.config.settings import settings
-from src.db.base import Base  # noqa: F401 — ensures all models are registered
+from src.core.config import get_settings
+from src.data.storage.timeseries_store import Base  # noqa: F401 — registers all models
+
+settings = get_settings()
 
 # Alembic Config object (provides access to alembic.ini values)
 config = context.config
 
 # Set the SQLAlchemy URL from application settings, overriding alembic.ini
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+config.set_main_option("sqlalchemy.url", settings.database_url)
 
 # Configure Python logging from the ini file
 if config.config_file_name is not None:

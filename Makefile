@@ -13,7 +13,7 @@ format:
 	uv run ruff format .
 
 run:
-	uv run uvicorn src.api.app:create_app --factory --reload
+	uv run uvicorn src.api.app:create_app --factory --reload --port 8001
 
 docker-up:
 	docker compose up -d

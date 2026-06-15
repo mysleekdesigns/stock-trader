@@ -29,9 +29,11 @@ def upgrade() -> None:
     # ------------------------------------------------------------------
     op.create_table(
         "ohlcv",
+        # ``timestamp`` is part of the PK because TimescaleDB requires the
+        # partitioning column to belong to every unique/primary key.
         sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
         sa.Column("symbol", sa.String(20), nullable=False),
-        sa.Column("timestamp", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("timestamp", sa.DateTime(timezone=True), primary_key=True, nullable=False),
         sa.Column("open", sa.Float, nullable=False),
         sa.Column("high", sa.Float, nullable=False),
         sa.Column("low", sa.Float, nullable=False),
@@ -104,8 +106,9 @@ def upgrade() -> None:
     # ------------------------------------------------------------------
     op.create_table(
         "portfolio_snapshots",
+        # ``timestamp`` is part of the PK (TimescaleDB partitioning requirement).
         sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
-        sa.Column("timestamp", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("timestamp", sa.DateTime(timezone=True), primary_key=True, nullable=False),
         sa.Column("total_value", sa.Float, nullable=False),
         sa.Column("cash", sa.Float, nullable=False),
         sa.Column("positions_value", sa.Float, nullable=False),

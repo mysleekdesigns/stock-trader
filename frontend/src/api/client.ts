@@ -104,6 +104,7 @@ export interface BacktestResult {
   status: 'pending' | 'completed' | 'failed'
   metrics: Record<string, number>
   equity_curve: number[]
+  timestamps?: string[]
   trades: Record<string, unknown>[]
   report_url?: string | null
 }

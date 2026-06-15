@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { Time, UTCTimestamp } from 'lightweight-charts'
 import { runBacktest } from '../api/client'
 import type { BacktestResult } from '../api/client'
 import EquityCurve from '../components/charts/EquityCurve'
@@ -33,19 +34,48 @@ function money(v: number) {
   return v.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 }
 
-/** Add i days to a YYYY-MM-DD string using UTC to avoid DST issues. */
+const INTRADAY_TFS = new Set(['1m', '5m', '15m', '1h'])
+
+/** Add i days to a YYYY-MM-DD string using UTC (legacy fallback used only when
+ *  the backend doesn't return per-point timestamps). */
 function addDaysUTC(dateStr: string, days: number): string {
   const ms = Date.parse(dateStr) + days * 86_400_000
   return new Date(ms).toISOString().slice(0, 10)
 }
 
+/** Convert an ISO timestamp to a lightweight-charts time value:
+ *  intraday -> UTC epoch seconds (axis shows time-of-day);
+ *  daily/weekly -> 'YYYY-MM-DD' business-day string. */
+function toChartTime(iso: string, timeframe: string): Time {
+  if (INTRADAY_TFS.has(timeframe)) {
+    return Math.floor(Date.parse(iso) / 1000) as UTCTimestamp
+  }
+  return iso.slice(0, 10) as Time
+}
+
+/** Chart time for point i — prefer the real backend timestamp, fall back to
+ *  startDate + i days for older responses without timestamps. */
+function timeAt(
+  i: number,
+  timestamps: string[] | undefined,
+  startDate: string,
+  timeframe: string,
+): Time {
+  if (timestamps && i < timestamps.length) {
+    return toChartTime(timestamps[i], timeframe)
+  }
+  return addDaysUTC(startDate, i) as Time
+}
+
 /** Convert a flat equity_curve array to {time, value}[] for charts. */
 function equityToTimeSeries(
   equityCurve: number[],
+  timestamps: string[] | undefined,
   startDate: string,
-): { time: string; value: number }[] {
+  timeframe: string,
+): { time: Time; value: number }[] {
   return equityCurve.map((value, i) => ({
-    time: addDaysUTC(startDate, i),
+    time: timeAt(i, timestamps, startDate, timeframe),
     value,
   }))
 }
@@ -53,13 +83,15 @@ function equityToTimeSeries(
 /** Derive drawdown curve from equity curve. */
 function equityToDrawdown(
   equityCurve: number[],
+  timestamps: string[] | undefined,
   startDate: string,
-): { time: string; value: number }[] {
+  timeframe: string,
+): { time: Time; value: number }[] {
   let peak = equityCurve[0] ?? 0
   return equityCurve.map((value, i) => {
     if (value > peak) peak = value
     const dd = peak > 0 ? -(peak - value) / peak : 0
-    return { time: addDaysUTC(startDate, i), value: dd }
+    return { time: timeAt(i, timestamps, startDate, timeframe), value: dd }
   })
 }
 
@@ -94,6 +126,7 @@ export default function Backtest() {
   const [startDate, setStartDate] = useState('2024-01-01')
   const [endDate, setEndDate] = useState('2024-12-31')
   const [symbols, setSymbols] = useState('AAPL,MSFT,GOOGL')
+  const [timeframe, setTimeframe] = useState('1d')
   const [initialCapital, setInitialCapital] = useState('100000')
   const [running, setRunning] = useState(false)
   const [progress, setProgress] = useState('')
@@ -113,6 +146,7 @@ export default function Backtest() {
           end_date: endDate,
           symbols: symbols.split(',').map((s) => s.trim()).filter(Boolean),
           initial_capital: parseFloat(initialCapital),
+          timeframe,
         },
         setProgress,
       )
@@ -130,8 +164,12 @@ export default function Backtest() {
   }
 
   const m = result?.metrics ?? {}
-  const equityCurveData = result ? equityToTimeSeries(result.equity_curve, startDate) : []
-  const drawdownData = result ? equityToDrawdown(result.equity_curve, startDate) : []
+  const equityCurveData = result
+    ? equityToTimeSeries(result.equity_curve, result.timestamps, startDate, timeframe)
+    : []
+  const drawdownData = result
+    ? equityToDrawdown(result.equity_curve, result.timestamps, startDate, timeframe)
+    : []
   const trades = result?.trades ?? []
 
   return (
@@ -173,6 +211,20 @@ export default function Backtest() {
                 onChange={(e) => setSymbols(e.target.value)}
                 placeholder="AAPL,MSFT,GOOGL"
               />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Timeframe</Label>
+              <Select value={timeframe} onValueChange={setTimeframe}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select timeframe..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1d">Daily</SelectItem>
+                  <SelectItem value="1h">1 Hour</SelectItem>
+                  <SelectItem value="15m">15 Minutes</SelectItem>
+                  <SelectItem value="5m">5 Minutes</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Initial Capital</Label>

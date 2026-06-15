@@ -58,7 +58,10 @@ class TestMomentumStrategy:
         features = {
             "ema_10": 155.0,
             "ema_50": 150.0,
-            "adx_14": 30.0,
+            # The ``adx_14`` registry feature emits a column named ``adx``
+            # (alongside adx_pos_di / adx_neg_di), which is the key the
+            # strategy actually consumes.
+            "adx": 30.0,
             "atr_14": 2.0,
             "volume_sma_20": 1_000_000,
             "sma_20": 152.0,
@@ -104,11 +107,11 @@ class TestMomentumStrategy:
         """Low ADX (no trend) should produce no directional signal."""
         strategy = self._make_strategy()
         # Set up crossover state
-        features_before = self._base_features(ema_10=145.0, ema_50=150.0, adx_14=15.0)
+        features_before = self._base_features(ema_10=145.0, ema_50=150.0, adx=15.0)
         strategy.generate_signals(features_before, datetime.utcnow())
 
         # Crossover happens but ADX is too low
-        features_after = self._base_features(ema_10=155.0, ema_50=150.0, adx_14=15.0)
+        features_after = self._base_features(ema_10=155.0, ema_50=150.0, adx=15.0)
         signals = strategy.generate_signals(features_after, datetime.utcnow())
         directional = [
             s for s in signals

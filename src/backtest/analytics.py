@@ -38,6 +38,7 @@ class BacktestAnalytics:
         timestamps: list[datetime],
         trades: list[dict],
         risk_free_rate: float = 0.05,
+        periods_per_year: float = _TRADING_DAYS,
     ) -> None:
         if len(equity_curve) < 2:
             raise ValueError("Equity curve must contain at least 2 data points.")
@@ -51,11 +52,14 @@ class BacktestAnalytics:
         self._timestamps = timestamps
         self._trades = trades
         self._rf = risk_free_rate
+        # Number of bars per year for this timeframe (252 for daily, ~35040
+        # for 15-minute 24/7 crypto, etc.) — used for all annualization.
+        self._ppy = float(periods_per_year)
 
-        # Daily returns (simple).
+        # Per-period returns (simple).
         self._returns = np.diff(self._equity) / self._equity[:-1]
-        # Daily risk-free rate.
-        self._rf_daily = (1.0 + self._rf) ** (1.0 / _TRADING_DAYS) - 1.0
+        # Per-period risk-free rate.
+        self._rf_daily = (1.0 + self._rf) ** (1.0 / self._ppy) - 1.0
         self._excess_returns = self._returns - self._rf_daily
 
     # ------------------------------------------------------------------
@@ -74,13 +78,13 @@ class BacktestAnalytics:
         total = self._equity[-1] / self._equity[0]
         if total <= 0:
             return -1.0
-        return float(total ** (_TRADING_DAYS / n_days) - 1.0)
+        return float(total ** (self._ppy / n_days) - 1.0)
 
     def volatility(self) -> float:
         """Annualized volatility of daily returns."""
         if len(self._returns) < 2:
             return 0.0
-        return float(np.std(self._returns, ddof=1) * np.sqrt(_TRADING_DAYS))
+        return float(np.std(self._returns, ddof=1) * np.sqrt(self._ppy))
 
     # ------------------------------------------------------------------
     # Risk-adjusted metrics
@@ -94,7 +98,7 @@ class BacktestAnalytics:
         if std == 0.0 or np.isnan(std):
             return 0.0
         return float(
-            np.mean(self._excess_returns) / std * np.sqrt(_TRADING_DAYS)
+            np.mean(self._excess_returns) / std * np.sqrt(self._ppy)
         )
 
     def sortino_ratio(self) -> float:
@@ -109,7 +113,7 @@ class BacktestAnalytics:
         if downside_std == 0.0:
             return 0.0
         return float(
-            np.mean(self._excess_returns) / downside_std * np.sqrt(_TRADING_DAYS)
+            np.mean(self._excess_returns) / downside_std * np.sqrt(self._ppy)
         )
 
     def calmar_ratio(self) -> float:
@@ -200,8 +204,8 @@ class BacktestAnalytics:
         port = self._returns[:n]
         bm = bm[:n]
         beta_val = self._compute_beta(port, bm)
-        ann_port = float(np.mean(port)) * _TRADING_DAYS
-        ann_bm = float(np.mean(bm)) * _TRADING_DAYS
+        ann_port = float(np.mean(port)) * self._ppy
+        ann_bm = float(np.mean(bm)) * self._ppy
         return ann_port - (self._rf + beta_val * (ann_bm - self._rf))
 
     def beta(self, benchmark_returns: np.ndarray | list[float]) -> float:
@@ -224,7 +228,7 @@ class BacktestAnalytics:
         te = np.std(active, ddof=1)
         if te == 0.0 or np.isnan(te):
             return 0.0
-        return float(np.mean(active) / te * np.sqrt(_TRADING_DAYS))
+        return float(np.mean(active) / te * np.sqrt(self._ppy))
 
     # ------------------------------------------------------------------
     # Aggregate

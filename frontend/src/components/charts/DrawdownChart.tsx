@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react'
-import { createChart, type IChartApi, ColorType } from 'lightweight-charts'
+import { createChart, type IChartApi, type Time, ColorType } from 'lightweight-charts'
 import { Card, CardContent } from '@/components/ui/card'
 
 interface DrawdownChartProps {
-  data: { time: string; value: number }[]
+  data: { time: Time; value: number }[]
   height?: number
 }
 

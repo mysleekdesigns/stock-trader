@@ -28,5 +28,7 @@ class BacktestResponse(BaseModel):
     status: str = "pending"
     metrics: dict[str, Any] = Field(default_factory=dict)
     equity_curve: list[float] = Field(default_factory=list)
+    # ISO-8601 timestamps aligned 1:1 with equity_curve (for the chart time axis).
+    timestamps: list[str] = Field(default_factory=list)
     trades: list[dict[str, Any]] = Field(default_factory=list)
     report_url: str | None = None

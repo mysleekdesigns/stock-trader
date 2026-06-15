@@ -59,9 +59,13 @@ class OHLCVRecord(Base):
         UniqueConstraint("symbol", "timestamp", "timeframe", name="uq_ohlcv_symbol_ts_tf"),
     )
 
+    # ``timestamp`` is part of the PK because TimescaleDB requires the
+    # partitioning column to belong to every unique/primary key.
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     symbol: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
-    timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), primary_key=True, nullable=False, index=True
+    )
     open: Mapped[float] = mapped_column(Float, nullable=False)
     high: Mapped[float] = mapped_column(Float, nullable=False)
     low: Mapped[float] = mapped_column(Float, nullable=False)
@@ -112,8 +116,11 @@ class PortfolioSnapshot(Base):
 
     __tablename__ = "portfolio_snapshots"
 
+    # ``timestamp`` is part of the PK (TimescaleDB partitioning requirement).
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), primary_key=True, nullable=False, index=True
+    )
     total_value: Mapped[float] = mapped_column(Float, nullable=False)
     cash: Mapped[float] = mapped_column(Float, nullable=False)
     positions_value: Mapped[float] = mapped_column(Float, nullable=False)

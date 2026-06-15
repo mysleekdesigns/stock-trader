@@ -502,10 +502,15 @@ class BacktestEngine:
             # Allocate a fraction of equity proportional to signal strength.
             allocation = equity * signal.strength * 0.1  # 10% max per signal
             price = bar.close
-            if price <= 0:
+            if price <= 0 or allocation <= 0:
                 continue
 
-            qty = int(allocation / price)
+            # Fractional quantity — required for high-priced assets such as
+            # crypto (e.g. BTC at ~$76k, where a whole unit dwarfs the
+            # allocation and int() truncation would yield zero shares).
+            qty = (Decimal(str(allocation)) / Decimal(str(price))).quantize(
+                Decimal("0.00000001")
+            )
             if qty <= 0:
                 continue
 
@@ -519,7 +524,7 @@ class BacktestEngine:
                 Order(
                     symbol=signal.symbol,
                     side=side,
-                    quantity=Decimal(str(qty)),
+                    quantity=qty,
                     order_type=OrderType.MARKET,
                     strategy_name=signal.strategy_name,
                 )
