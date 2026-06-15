@@ -36,6 +36,11 @@ function money(v: number) {
 
 const INTRADAY_TFS = new Set(['1m', '5m', '15m', '1h'])
 
+// yfinance only serves intraday bars for recent dates. Max window (days) we
+// snap the date range to when an intraday timeframe is selected, leaving room
+// for the backend's warm-up buffer within yfinance's limit (~60d for 5m/15m).
+const TF_WINDOW_DAYS: Record<string, number> = { '5m': 45, '15m': 45, '1h': 180 }
+
 /** Add i days to a YYYY-MM-DD string using UTC (legacy fallback used only when
  *  the backend doesn't return per-point timestamps). */
 function addDaysUTC(dateStr: string, days: number): string {
@@ -163,6 +168,21 @@ export default function Backtest() {
     }
   }
 
+  /** Snap the date range into a valid recent window when an intraday timeframe
+   *  is selected (yfinance has no intraday history beyond ~60 days). */
+  function handleTimeframeChange(tf: string) {
+    setTimeframe(tf)
+    const win = TF_WINDOW_DAYS[tf]
+    if (!win) return
+    const today = new Date()
+    const earliest = new Date(today.getTime() - win * 86_400_000)
+    const cur = new Date(startDate)
+    if (isNaN(cur.getTime()) || cur < earliest) {
+      setStartDate(earliest.toISOString().slice(0, 10))
+      setEndDate(today.toISOString().slice(0, 10))
+    }
+  }
+
   const m = result?.metrics ?? {}
   const equityCurveData = result
     ? equityToTimeSeries(result.equity_curve, result.timestamps, startDate, timeframe)
@@ -214,7 +234,7 @@ export default function Backtest() {
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Timeframe</Label>
-              <Select value={timeframe} onValueChange={setTimeframe}>
+              <Select value={timeframe} onValueChange={handleTimeframeChange}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select timeframe..." />
                 </SelectTrigger>
@@ -252,6 +272,12 @@ export default function Backtest() {
               </Button>
             </div>
           </div>
+          {INTRADAY_TFS.has(timeframe) && (
+            <p className="text-xs text-muted-foreground">
+              Intraday data is only available for recent dates (~60 days for 5m/15m, ~2 years for 1h).
+              The date range auto-adjusts to a valid recent window.
+            </p>
+          )}
         </CardContent>
       </Card>
 

@@ -60,6 +60,11 @@ _WARMUP_DAYS: dict[TimeFrame, int] = {
     TimeFrame.MINUTE_1: 5,
 }
 
+# Intraday timeframes have limited historical depth on yfinance.
+_INTRADAY_TIMEFRAMES = frozenset(
+    {TimeFrame.MINUTE_1, TimeFrame.MINUTE_5, TimeFrame.MINUTE_15, TimeFrame.HOUR_1}
+)
+
 # Bars per year per timeframe, used to annualize Sharpe/volatility/return.
 # Sub-daily values assume a 24/7 market (correct for crypto such as BTC-USD);
 # daily/weekly use equity-market trading-period counts.
@@ -295,8 +300,16 @@ async def run_backtest(
 
     bars = await _load_bars(symbols, timeframe, fetch_start, fetch_end)
     if not bars:
+        hint = ""
+        if timeframe in _INTRADAY_TIMEFRAMES:
+            hint = (
+                " yfinance only provides intraday data for recent dates "
+                "(~60 days for 5m/15m, ~730 days for 1h, ~7 days for 1m), "
+                f"but the requested range starts {start.isoformat()}. "
+                "Choose a more recent date range."
+            )
         raise NoDataError(
-            f"No historical {timeframe.value} data returned for {symbols}."
+            f"No historical {timeframe.value} data returned for {symbols}.{hint}"
         )
     loaded_symbols = sorted(bars.keys())
 
