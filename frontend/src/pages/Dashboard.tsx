@@ -12,8 +12,8 @@ import { ExposureSummary } from '../components/risk/ExposureBar'
 import { Loader2 } from 'lucide-react'
 
 const ALLOC_COLORS = [
-  '#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6',
-  '#06b6d4', '#f97316', '#ec4899', '#14b8a6', '#6366f1',
+  '#e8ae49', '#4fb6c4', '#2fcf8e', '#f4615a', '#c9923c',
+  '#7aa2c4', '#d9b86a', '#8a8275', '#5ec5a8', '#e0905a',
 ]
 
 const DEFAULT_UNIVERSE = ['SPY', 'QQQ', 'AAPL', 'MSFT', 'NVDA', 'TSLA']
@@ -72,8 +72,9 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="panel flex h-96 flex-col items-center justify-center gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="eyebrow">Loading Terminal</span>
       </div>
     )
   }
@@ -93,26 +94,39 @@ export default function Dashboard() {
   const heatmapSymbols = (positions.length > 0 ? positions.map((p) => p.symbol) : DEFAULT_UNIVERSE).slice(0, 8)
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Dashboard</h1>
-        <span className="text-xs text-muted-foreground font-mono">
-          {new Date().toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </span>
+    <div className="space-y-8">
+      <div className="animate-rise space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="eyebrow">01 — Overview</div>
+            <h1 className="font-display text-3xl font-semibold tracking-tight">Dashboard</h1>
+            <p className="text-sm text-muted-foreground">
+              Live portfolio, risk, and correlation readout.
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <span className="font-mono text-xs tabular-nums text-muted-foreground">
+              {new Date().toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </span>
+          </div>
+        </div>
+        <div className="rule" />
       </div>
 
-      <PnLSummary
-        dailyPnl={portfolio.dailyPnl}
-        weeklyPnl={portfolio.weeklyPnl}
-        monthlyPnl={portfolio.monthlyPnl}
-      />
+      <div className="animate-rise" style={{ animationDelay: '80ms' }}>
+        <PnLSummary
+          dailyPnl={portfolio.dailyPnl}
+          weeklyPnl={portfolio.weeklyPnl}
+          monthlyPnl={portfolio.monthlyPnl}
+        />
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="animate-rise grid grid-cols-1 gap-6 lg:grid-cols-3" style={{ animationDelay: '160ms' }}>
         <div className="lg:col-span-2">
           <EquityCurve data={equityCurve} />
         </div>
@@ -130,14 +144,14 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="animate-rise grid grid-cols-1 gap-6 lg:grid-cols-3" style={{ animationDelay: '240ms' }}>
         <div className="lg:col-span-2">
           <PositionsTable positions={positions} />
         </div>
         <AllocationDonut slices={allocationSlices} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="animate-rise grid grid-cols-1 gap-6 lg:grid-cols-2" style={{ animationDelay: '320ms' }}>
         <HeatMap labels={heatmapSymbols} matrix={correlationMatrix(heatmapSymbols)} title="Position Correlation" />
       </div>
     </div>

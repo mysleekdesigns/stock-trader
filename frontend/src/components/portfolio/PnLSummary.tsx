@@ -18,18 +18,18 @@ function PnLCard({ label, value }: PnLCardProps) {
   const isPositive = value >= 0
 
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-2">
+    <Card className="transition-colors hover:border-primary/40">
+      <CardContent className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-muted-foreground">{label}</span>
+          <span className="eyebrow">{label}</span>
           {isPositive ? (
-            <TrendingUp className="w-4 h-4 text-up" />
+            <TrendingUp className="h-4 w-4 text-up" strokeWidth={1.75} />
           ) : (
-            <TrendingDown className="w-4 h-4 text-down" />
+            <TrendingDown className="h-4 w-4 text-down" strokeWidth={1.75} />
           )}
         </div>
         <div
-          className={`text-2xl font-bold font-mono ${
+          className={`font-mono text-3xl font-semibold tracking-tight tabular-nums ${
             isPositive ? 'pnl-positive' : 'pnl-negative'
           }`}
         >

@@ -99,22 +99,42 @@ export default function Orders() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
 
+  const pendingCount = orders.filter((o) => o.status === 'pending').length
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Orders</h1>
-        <span className="text-xs text-muted-foreground">
-          {orders.filter((o) => o.status === 'pending').length} pending orders
-        </span>
+    <div className="space-y-7">
+      {/* ---- Page header ---- */}
+      <div className="animate-rise space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="eyebrow">06 — Order Flow</div>
+            <h1 className="font-display text-3xl font-semibold tracking-tight">Orders</h1>
+            <p className="text-sm text-muted-foreground">
+              Execution log across strategies — fills, partials, and live working orders.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="panel flex items-center gap-2 px-3 py-2">
+              <span className="eyebrow !text-[0.6rem]">Pending</span>
+              <span className="font-mono text-sm font-semibold tabular-nums text-primary">
+                {String(pendingCount).padStart(2, '0')}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="rule" />
       </div>
 
-      <TradeLog orders={orders} onCancel={handleCancel} />
+      {/* ---- Trade log ---- */}
+      <div className="animate-rise" style={{ animationDelay: '80ms' }}>
+        <TradeLog orders={orders} onCancel={handleCancel} />
+      </div>
     </div>
   )
 }

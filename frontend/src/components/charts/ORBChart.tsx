@@ -53,9 +53,9 @@ export default function ORBChart({ data, overlay, symbol, height = 500 }: ORBCha
   useEffect(() => {
     if (!containerRef.current) return
     const isDark = document.documentElement.classList.contains('dark')
-    const bg = isDark ? '#1e293b' : '#ffffff'
-    const textColor = isDark ? '#94a3b8' : '#64748b'
-    const gridColor = isDark ? '#334155' : '#e2e8f0'
+    const bg = isDark ? '#221e18' : '#fdfcfa'
+    const textColor = isDark ? '#8a8275' : '#8c8678'
+    const gridColor = isDark ? '#2c2720' : '#ece8e0'
 
     const chart = createChart(containerRef.current, {
       width: containerRef.current.clientWidth,
@@ -63,15 +63,15 @@ export default function ORBChart({ data, overlay, symbol, height = 500 }: ORBCha
       layout: {
         background: { type: ColorType.Solid, color: bg },
         textColor,
-        fontFamily: 'Inter, system-ui, sans-serif',
+        fontFamily: 'IBM Plex Mono, monospace',
       },
       grid: {
         vertLines: { color: gridColor },
         horzLines: { color: gridColor },
       },
       crosshair: {
-        vertLine: { color: '#6366f1', width: 1, style: 2 },
-        horzLine: { color: '#6366f1', width: 1, style: 2 },
+        vertLine: { color: '#e8ae49', width: 1, style: 2 },
+        horzLine: { color: '#e8ae49', width: 1, style: 2 },
       },
       rightPriceScale: { borderColor: gridColor },
       timeScale: { borderColor: gridColor, timeVisible: true, secondsVisible: false },
@@ -79,12 +79,12 @@ export default function ORBChart({ data, overlay, symbol, height = 500 }: ORBCha
 
     // Candlestick series
     const candleSeries = chart.addCandlestickSeries({
-      upColor: '#22c55e',
-      downColor: '#ef4444',
-      borderUpColor: '#22c55e',
-      borderDownColor: '#ef4444',
-      wickUpColor: '#22c55e',
-      wickDownColor: '#ef4444',
+      upColor: '#2fcf8e',
+      downColor: '#f4615a',
+      borderUpColor: '#2fcf8e',
+      borderDownColor: '#f4615a',
+      wickUpColor: '#2fcf8e',
+      wickDownColor: '#f4615a',
     })
 
     if (chartData.length > 0) {
@@ -105,7 +105,7 @@ export default function ORBChart({ data, overlay, symbol, height = 500 }: ORBCha
         chartData.map((d) => ({
           time: d.time,
           value: d.volume || 0,
-          color: d.close >= d.open ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)',
+          color: d.close >= d.open ? 'rgba(47, 207, 142, 0.30)' : 'rgba(244, 97, 90, 0.30)',
         })) as any,
       )
     }
@@ -113,7 +113,7 @@ export default function ORBChart({ data, overlay, symbol, height = 500 }: ORBCha
     // OR High line
     if (overlay.orHigh !== null && chartData.length > 0) {
       const orHighLine = chart.addLineSeries({
-        color: '#f97316',
+        color: '#fb923c',
         lineWidth: 2,
         lineStyle: LineStyle.Dashed,
         title: 'OR High',
@@ -128,7 +128,7 @@ export default function ORBChart({ data, overlay, symbol, height = 500 }: ORBCha
     // OR Low line
     if (overlay.orLow !== null && chartData.length > 0) {
       const orLowLine = chart.addLineSeries({
-        color: '#f97316',
+        color: '#fb923c',
         lineWidth: 1,
         lineStyle: LineStyle.Dotted,
         title: 'OR Low',
@@ -143,7 +143,7 @@ export default function ORBChart({ data, overlay, symbol, height = 500 }: ORBCha
     // VWAP line
     if (overlay.vwap !== null && chartData.length > 0) {
       const vwapLine = chart.addLineSeries({
-        color: '#3b82f6',
+        color: '#4fb6c4',
         lineWidth: 1,
         lineStyle: LineStyle.Solid,
         title: 'VWAP',
@@ -161,7 +161,7 @@ export default function ORBChart({ data, overlay, symbol, height = 500 }: ORBCha
         {
           time: breakoutUnix as any,
           position: 'aboveBar',
-          color: '#22c55e',
+          color: '#2fcf8e',
           shape: 'arrowUp',
           text: 'ORB',
         },
@@ -187,8 +187,19 @@ export default function ORBChart({ data, overlay, symbol, height = 500 }: ORBCha
   return (
     <Card>
       {symbol && (
-        <div className="px-6 pt-4">
-          <h3 className="text-sm font-semibold">{symbol} — ORB Scanner</h3>
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="eyebrow">Opening Range Breakout</div>
+            <h3 className="font-mono text-sm font-semibold tracking-tight tabular-nums">{symbol}</h3>
+          </div>
+          <div className="flex items-center gap-3 font-mono text-[0.65rem] uppercase tracking-wider text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: '#fb923c' }} />OR
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: '#4fb6c4' }} />VWAP
+            </span>
+          </div>
         </div>
       )}
       <CardContent>

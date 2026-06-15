@@ -32,13 +32,16 @@ export default function TradeLog({ orders, onCancel }: { orders: Order[]; onCanc
 
   return (
     <Card>
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Trade Log</h3>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="space-y-1">
+          <div className="eyebrow">Execution Ledger</div>
+          <h3 className="font-display text-base font-semibold tracking-tight">Trade Log</h3>
+        </div>
         <div className="flex items-center gap-3">
           <Input type="text" placeholder="Filter symbol..." value={filterSymbol}
-            onChange={(e) => setFilterSymbol(e.target.value)} className="w-32 h-8 text-xs" />
+            onChange={(e) => setFilterSymbol(e.target.value)} className="h-8 w-32 font-mono text-xs" />
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-32 h-8 text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="h-8 w-32 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
@@ -54,45 +57,45 @@ export default function TradeLog({ orders, onCancel }: { orders: Order[]; onCanc
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="text-muted-foreground">Time</TableHead>
-              <TableHead className="text-muted-foreground">Symbol</TableHead>
-              <TableHead className="text-muted-foreground">Side</TableHead>
-              <TableHead className="text-muted-foreground">Type</TableHead>
-              <TableHead className="text-right text-muted-foreground">Qty</TableHead>
-              <TableHead className="text-right text-muted-foreground">Price</TableHead>
-              <TableHead className="text-right text-muted-foreground">Filled</TableHead>
-              <TableHead className="text-center text-muted-foreground">Status</TableHead>
-              <TableHead className="text-center text-muted-foreground">Action</TableHead>
+              <TableHead className="eyebrow">Time</TableHead>
+              <TableHead className="eyebrow">Symbol</TableHead>
+              <TableHead className="eyebrow">Side</TableHead>
+              <TableHead className="eyebrow">Type</TableHead>
+              <TableHead className="eyebrow text-right">Qty</TableHead>
+              <TableHead className="eyebrow text-right">Price</TableHead>
+              <TableHead className="eyebrow text-right">Filled</TableHead>
+              <TableHead className="eyebrow text-center">Status</TableHead>
+              <TableHead className="eyebrow text-center">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground py-8">No orders found</TableCell>
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={9} className="py-8 text-center font-mono text-xs text-muted-foreground">No orders found</TableCell>
               </TableRow>
             ) : (
               filtered.map((order) => (
-                <TableRow key={order.id} className="hover:bg-accent/50">
-                  <TableCell className="text-xs font-mono text-muted-foreground">{formatTime(order.createdAt)}</TableCell>
-                  <TableCell className="font-mono font-semibold">{order.symbol}</TableCell>
+                <TableRow key={order.id} className="transition-colors hover:bg-accent/40">
+                  <TableCell className="font-mono text-xs tabular-nums text-muted-foreground">{formatTime(order.createdAt)}</TableCell>
+                  <TableCell className="font-mono font-semibold tracking-tight text-foreground">{order.symbol}</TableCell>
                   <TableCell><Badge variant={order.side === 'buy' ? 'up' : 'down'}>{order.side.toUpperCase()}</Badge></TableCell>
-                  <TableCell className="text-xs uppercase text-muted-foreground">{order.type}</TableCell>
-                  <TableCell className="text-right font-mono">{order.quantity}</TableCell>
-                  <TableCell className="text-right font-mono">{order.price ? formatCurrency(order.price) : '--'}</TableCell>
-                  <TableCell className="text-right font-mono">
+                  <TableCell className="font-mono text-xs uppercase tracking-wider text-muted-foreground">{order.type}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums">{order.quantity}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums">{order.price ? formatCurrency(order.price) : '--'}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums">
                     {order.filledQuantity}/{order.quantity}
-                    {order.filledPrice && <span className="text-muted-foreground ml-1">@{formatCurrency(order.filledPrice)}</span>}
+                    {order.filledPrice && <span className="ml-1 text-muted-foreground">@{formatCurrency(order.filledPrice)}</span>}
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge variant={statusVariant[order.status] || 'neutral'}
-                      className={order.status === 'partial' ? 'bg-amber-500/15 text-amber-400 border-transparent' : ''}>
+                      className={order.status === 'partial' ? 'border border-primary/25 bg-primary/15 text-primary' : ''}>
                       {order.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-center">
                     {order.status === 'pending' && onCancel && (
                       <Button variant="ghost" size="icon-xs" onClick={() => onCancel(order.id)} title="Cancel order">
-                        <X className="w-3.5 h-3.5 text-down" />
+                        <X className="h-3.5 w-3.5 text-down" />
                       </Button>
                     )}
                   </TableCell>

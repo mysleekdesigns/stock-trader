@@ -11,9 +11,11 @@ interface SettingsField {
   placeholder?: string; options?: { label: string; value: string }[]; description?: string
 }
 
-const sections: { title: string; fields: SettingsField[] }[] = [
+const sections: { title: string; eyebrow: string; subtitle: string; fields: SettingsField[] }[] = [
   {
     title: 'Broker API',
+    eyebrow: 'Execution',
+    subtitle: 'Connect the brokerage that routes live orders.',
     fields: [
       { key: 'broker', label: 'Broker', type: 'select', options: [
         { label: 'Alpaca', value: 'alpaca' }, { label: 'Interactive Brokers', value: 'ibkr' }, { label: 'Paper Trading', value: 'paper' },
@@ -25,6 +27,8 @@ const sections: { title: string; fields: SettingsField[] }[] = [
   },
   {
     title: 'Data Providers',
+    eyebrow: 'Market Data',
+    subtitle: 'Feed sources for quotes, bars and history.',
     fields: [
       { key: 'polygonKey', label: 'Polygon.io API Key', type: 'password', placeholder: 'Enter Polygon API key' },
       { key: 'dataSource', label: 'Primary Data Source', type: 'select', options: [
@@ -34,6 +38,8 @@ const sections: { title: string; fields: SettingsField[] }[] = [
   },
   {
     title: 'Risk Limits',
+    eyebrow: 'Guardrails',
+    subtitle: 'Hard ceilings enforced before every order.',
     fields: [
       { key: 'maxPositionSize', label: 'Max Position Size (%)', type: 'number', placeholder: '10', description: 'Maximum allocation per single position' },
       { key: 'maxDrawdown', label: 'Max Drawdown (%)', type: 'number', placeholder: '5', description: 'Stop trading if drawdown exceeds this' },
@@ -44,6 +50,8 @@ const sections: { title: string; fields: SettingsField[] }[] = [
   },
   {
     title: 'Notifications',
+    eyebrow: 'Alerts',
+    subtitle: 'Where fills, breaches and warnings are sent.',
     fields: [
       { key: 'webhookUrl', label: 'Webhook URL', type: 'text', placeholder: 'https://hooks.slack.com/...' },
       { key: 'emailAlerts', label: 'Email', type: 'text', placeholder: 'alerts@example.com' },
@@ -63,41 +71,76 @@ export default function Settings() {
   function handleSave() { setSaved(true); setTimeout(() => setSaved(false), 3000) }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Settings</h1>
-        <Button onClick={handleSave}><Save className="w-4 h-4" />{saved ? 'Saved!' : 'Save Changes'}</Button>
+    <div className="space-y-7">
+      {/* ---- Page header ---- */}
+      <div className="animate-rise space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="eyebrow">07 — Configuration</div>
+            <h1 className="font-display text-3xl font-semibold tracking-tight">Settings</h1>
+            <p className="text-sm text-muted-foreground">
+              Credentials, data feeds and risk guardrails for the trading engine.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {saved && (
+              <span className="font-mono text-[0.7rem] uppercase tracking-wider text-up">
+                Saved
+              </span>
+            )}
+            <Button onClick={handleSave}>
+              <Save className="h-4 w-4" />
+              {saved ? 'Saved!' : 'Save Changes'}
+            </Button>
+          </div>
+        </div>
+        <div className="rule" />
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {sections.map((section) => (
-          <Card key={section.title}>
-            <h3 className="text-sm font-semibold">{section.title}</h3>
+
+      {/* ---- Sections ---- */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {sections.map((section, i) => (
+          <Card
+            key={section.title}
+            className="animate-rise gap-5 transition-colors hover:border-primary/40"
+            style={{ animationDelay: `${80 + i * 80}ms` }}
+          >
+            <div className="space-y-1.5 border-b border-border pb-4">
+              <div className="eyebrow">{section.eyebrow}</div>
+              <h3 className="font-display text-lg font-semibold tracking-tight">{section.title}</h3>
+              <p className="text-sm text-muted-foreground">{section.subtitle}</p>
+            </div>
             <CardContent className="space-y-4">
-              {section.fields.map((field) => (
-                <div key={field.key} className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">{field.label}</Label>
-                  {field.type === 'select' ? (
-                    <Select value={values[field.key] || ''} onValueChange={(v) => handleChange(field.key, v)}>
-                      <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                      <SelectContent>
-                        {field.options?.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  ) : field.type === 'password' ? (
-                    <div className="relative">
-                      <Input type={visiblePasswords.has(field.key) ? 'text' : 'password'} value={values[field.key] || ''}
-                        onChange={(e) => handleChange(field.key, e.target.value)} placeholder={field.placeholder} className="pr-10" />
-                      <Button type="button" variant="ghost" size="icon-xs" onClick={() => togglePasswordVisibility(field.key)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                        {visiblePasswords.has(field.key) ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </Button>
-                    </div>
-                  ) : (
-                    <Input type={field.type} value={values[field.key] || ''} onChange={(e) => handleChange(field.key, e.target.value)} placeholder={field.placeholder} />
-                  )}
-                  {field.description && <p className="text-[10px] text-muted-foreground">{field.description}</p>}
-                </div>
-              ))}
+              {section.fields.map((field) => {
+                const mono = field.type === 'password' || field.type === 'number' || field.type === 'text'
+                return (
+                  <div key={field.key} className="space-y-1.5">
+                    <Label className="eyebrow !tracking-[0.12em] !text-muted-foreground">{field.label}</Label>
+                    {field.type === 'select' ? (
+                      <Select value={values[field.key] || ''} onValueChange={(v) => handleChange(field.key, v)}>
+                        <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                        <SelectContent>
+                          {field.options?.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    ) : field.type === 'password' ? (
+                      <div className="relative">
+                        <Input type={visiblePasswords.has(field.key) ? 'text' : 'password'} value={values[field.key] || ''}
+                          onChange={(e) => handleChange(field.key, e.target.value)} placeholder={field.placeholder}
+                          className="pr-10 font-mono text-sm tabular-nums" />
+                        <Button type="button" variant="ghost" size="icon-xs" onClick={() => togglePasswordVisibility(field.key)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-primary">
+                          {visiblePasswords.has(field.key) ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    ) : (
+                      <Input type={field.type} value={values[field.key] || ''} onChange={(e) => handleChange(field.key, e.target.value)}
+                        placeholder={field.placeholder} className={mono ? 'font-mono text-sm tabular-nums' : undefined} />
+                    )}
+                    {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
+                  </div>
+                )
+              })}
             </CardContent>
           </Card>
         ))}

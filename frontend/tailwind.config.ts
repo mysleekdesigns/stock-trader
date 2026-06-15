@@ -20,22 +20,24 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Dark "terminal" surfaces for dense market-data panels.
+        // Warm graphite "terminal" surfaces for dense market-data panels,
+        // tuned to match the amber/graphite token system in index.css.
         terminal: {
-          bg: '#0a0e17',
-          surface: '#111827',
-          card: '#1a2332',
-          border: '#1f2937',
-          hover: '#253347',
-          text: '#e5e7eb',
-          muted: '#6b7280',
-          accent: '#3b82f6',
-          'accent-light': '#60a5fa',
+          bg: '#15130e',
+          surface: '#1c1914',
+          card: '#221e18',
+          border: '#322c23',
+          hover: '#2b261e',
+          text: '#ece6da',
+          muted: '#8a8275',
+          accent: '#e8ae49',
+          'accent-light': '#f3c873',
         },
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Bricolage Grotesque', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Hanken Grotesk', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['IBM Plex Mono', 'ui-monospace', 'SF Mono', 'monospace'],
       },
     },
   },

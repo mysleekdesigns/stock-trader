@@ -28,19 +28,22 @@ export default function RiskGauge({ value, label = 'Risk Level', size = 160 }: R
     return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`
   }
 
-  let riskColor = '#22c55e'
+  let riskColor = '#2fcf8e'
   let riskLabel = 'Low'
   if (clampedValue > 70) {
-    riskColor = '#ef4444'
+    riskColor = '#f4615a'
     riskLabel = 'High'
   } else if (clampedValue > 40) {
-    riskColor = '#f59e0b'
+    riskColor = '#e8ae49'
     riskLabel = 'Medium'
   }
 
   return (
     <Card className="items-center">
-      <h3 className="text-sm font-semibold self-start">{label}</h3>
+      <div className="space-y-1 self-start">
+        <div className="eyebrow">Risk</div>
+        <h3 className="font-display text-sm font-semibold tracking-tight">{label}</h3>
+      </div>
       <CardContent>
         <svg width={size} height={size * 0.7} viewBox={`0 0 ${size} ${size * 0.75}`}>
           <path
@@ -69,11 +72,11 @@ export default function RiskGauge({ value, label = 'Risk Level', size = 160 }: R
           })()}
           <circle cx={center} cy={center} r={4} fill={riskColor} />
           <text x={center} y={center + 24} textAnchor="middle"
-            className="fill-foreground font-bold" style={{ fontSize: '18px' }}>
+            className="fill-foreground font-semibold" style={{ fontSize: '20px', fontFamily: 'IBM Plex Mono, monospace' }}>
             {clampedValue.toFixed(0)}
           </text>
           <text x={center} y={center + 40} textAnchor="middle"
-            style={{ fontSize: '11px', fill: riskColor }}>
+            style={{ fontSize: '10px', fill: riskColor, fontFamily: 'IBM Plex Mono, monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             {riskLabel}
           </text>
         </svg>

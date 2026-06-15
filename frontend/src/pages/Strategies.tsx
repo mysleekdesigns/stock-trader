@@ -139,20 +139,33 @@ export default function Strategies() {
         ]
 
   const configuring = displayStrategies.find((s) => s.id === configuringId) ?? null
+  const activeCount = displayStrategies.filter((s) => s.enabled).length
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Strategies</h1>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>
-            {displayStrategies.filter((s) => s.enabled).length} active /{' '}
-            {displayStrategies.length} total
-          </span>
+    <div className="space-y-7">
+      <div className="animate-rise space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="eyebrow">02 — Strategy Engine</div>
+            <h1 className="font-display text-3xl font-semibold tracking-tight">Strategies</h1>
+            <p className="text-sm text-muted-foreground">
+              Live rule-based and model-driven strategies, tunable in place.
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <span className="font-mono text-sm tabular-nums text-muted-foreground">
+              <span className="text-primary">{activeCount}</span> active /{' '}
+              {displayStrategies.length} total
+            </span>
+          </div>
         </div>
+        <div className="rule" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div
+        className="animate-rise grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+        style={{ animationDelay: '80ms' }}
+      >
         {displayStrategies.map((strategy) => (
           <StrategyCard
             key={strategy.id}
@@ -165,7 +178,7 @@ export default function Strategies() {
 
       {configuring && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-4 backdrop-blur-sm"
           onClick={() => setConfiguringId(null)}
         >
           <div

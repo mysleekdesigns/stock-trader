@@ -15,42 +15,45 @@ function formatPct(value: number): string {
 export default function PositionsTable({ positions }: { positions: Position[] }) {
   return (
     <Card>
-      <h3 className="text-sm font-semibold">Open Positions</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="font-display text-base font-semibold tracking-tight">Open Positions</h3>
+        <span className="eyebrow tabular-nums">{positions.length} Open</span>
+      </div>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="text-muted-foreground">Symbol</TableHead>
-              <TableHead className="text-muted-foreground">Side</TableHead>
-              <TableHead className="text-right text-muted-foreground">Qty</TableHead>
-              <TableHead className="text-right text-muted-foreground">Avg Price</TableHead>
-              <TableHead className="text-right text-muted-foreground">Current</TableHead>
-              <TableHead className="text-right text-muted-foreground">Mkt Value</TableHead>
-              <TableHead className="text-right text-muted-foreground">P&L</TableHead>
-              <TableHead className="text-right text-muted-foreground">P&L %</TableHead>
+              <TableHead className="eyebrow">Symbol</TableHead>
+              <TableHead className="eyebrow">Side</TableHead>
+              <TableHead className="eyebrow text-right">Qty</TableHead>
+              <TableHead className="eyebrow text-right">Avg Price</TableHead>
+              <TableHead className="eyebrow text-right">Current</TableHead>
+              <TableHead className="eyebrow text-right">Mkt Value</TableHead>
+              <TableHead className="eyebrow text-right">P&L</TableHead>
+              <TableHead className="eyebrow text-right">P&L %</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {positions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">No open positions</TableCell>
+                <TableCell colSpan={8} className="py-10 text-center text-sm text-muted-foreground">No open positions</TableCell>
               </TableRow>
             ) : (
               positions.map((pos) => (
-                <TableRow key={pos.symbol} className="hover:bg-accent/50">
-                  <TableCell className="font-mono font-semibold">{pos.symbol}</TableCell>
+                <TableRow key={pos.symbol} className="transition-colors hover:bg-accent/40">
+                  <TableCell className="font-mono font-semibold tracking-tight">{pos.symbol}</TableCell>
                   <TableCell><Badge variant={pos.side === 'long' ? 'up' : 'down'}>{pos.side.toUpperCase()}</Badge></TableCell>
-                  <TableCell className="text-right font-mono">{pos.quantity}</TableCell>
-                  <TableCell className="text-right font-mono">{formatCurrency(pos.avgPrice)}</TableCell>
-                  <TableCell className="text-right font-mono">{formatCurrency(pos.currentPrice)}</TableCell>
-                  <TableCell className="text-right font-mono">{formatCurrency(pos.marketValue)}</TableCell>
-                  <TableCell className="text-right font-mono">
+                  <TableCell className="text-right font-mono tabular-nums">{pos.quantity}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums">{formatCurrency(pos.avgPrice)}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums">{formatCurrency(pos.currentPrice)}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums">{formatCurrency(pos.marketValue)}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums">
                     <span className="flex items-center justify-end gap-1">
-                      {pos.unrealizedPnl >= 0 ? <ArrowUpRight className="w-3 h-3 text-up" /> : <ArrowDownRight className="w-3 h-3 text-down" />}
+                      {pos.unrealizedPnl >= 0 ? <ArrowUpRight className="h-3 w-3 text-up" /> : <ArrowDownRight className="h-3 w-3 text-down" />}
                       <span className={pos.unrealizedPnl >= 0 ? 'pnl-positive' : 'pnl-negative'}>{formatCurrency(Math.abs(pos.unrealizedPnl))}</span>
                     </span>
                   </TableCell>
-                  <TableCell className="text-right font-mono">
+                  <TableCell className="text-right font-mono tabular-nums">
                     <span className={pos.unrealizedPnlPct >= 0 ? 'pnl-positive' : 'pnl-negative'}>{formatPct(pos.unrealizedPnlPct)}</span>
                   </TableCell>
                 </TableRow>

@@ -70,10 +70,10 @@ export default function StrategyConfig({ strategyName, params, onSave, onClose, 
   return (
     <Card className="w-full max-w-lg">
       <CardContent>
-        <div className="flex items-center justify-between mb-1">
-          <div>
-            <h3 className="text-sm font-semibold">Configure Strategy</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">{strategyName}</p>
+        <div className="mb-1 flex items-start justify-between gap-3">
+          <div className="space-y-1.5">
+            <div className="eyebrow">Configure Strategy</div>
+            <h3 className="font-display text-lg font-semibold tracking-tight">{strategyName}</h3>
           </div>
           {onClose && (
             <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label="Close">
@@ -82,7 +82,7 @@ export default function StrategyConfig({ strategyName, params, onSave, onClose, 
           )}
         </div>
 
-        <Separator className="my-3" />
+        <Separator className="my-4" />
 
         <div className="space-y-4">
           {params.map((param) => {
@@ -92,10 +92,10 @@ export default function StrategyConfig({ strategyName, params, onSave, onClose, 
             if (typeof param.value === 'boolean') {
               return (
                 <div key={param.key} className="flex items-center justify-between gap-4">
-                  <div>
+                  <div className="space-y-0.5">
                     <Label htmlFor={param.key}>{label}</Label>
                     {param.description && (
-                      <p className="text-xs text-muted-foreground mt-0.5">{param.description}</p>
+                      <p className="text-xs text-muted-foreground">{param.description}</p>
                     )}
                   </div>
                   <Switch
@@ -117,7 +117,7 @@ export default function StrategyConfig({ strategyName, params, onSave, onClose, 
                 <Input
                   id={param.key}
                   type={isNumber ? 'number' : 'text'}
-                  className="font-mono"
+                  className="font-mono tabular-nums"
                   value={current === undefined || current === null ? '' : String(current)}
                   min={param.min}
                   max={param.max}
@@ -128,7 +128,7 @@ export default function StrategyConfig({ strategyName, params, onSave, onClose, 
             )
           })}
           {params.length === 0 && (
-            <p className="text-sm text-muted-foreground py-4 text-center">
+            <p className="py-6 text-center text-sm text-muted-foreground">
               This strategy has no adjustable parameters.
             </p>
           )}

@@ -13,20 +13,20 @@ export default function PriceChart({ data, symbol, height = 400 }: PriceChartPro
   useEffect(() => {
     if (!containerRef.current) return
     const isDark = document.documentElement.classList.contains('dark')
-    const bg = isDark ? '#1e293b' : '#ffffff'
-    const textColor = isDark ? '#94a3b8' : '#64748b'
-    const gridColor = isDark ? '#334155' : '#e2e8f0'
+    const bg = isDark ? '#221e18' : '#fdfcfa'
+    const textColor = isDark ? '#8a8275' : '#8c8678'
+    const gridColor = isDark ? '#2c2720' : '#ece8e0'
 
     const chart = createChart(containerRef.current, {
       width: containerRef.current.clientWidth, height,
-      layout: { background: { type: ColorType.Solid, color: bg }, textColor, fontFamily: 'Inter, system-ui, sans-serif' },
+      layout: { background: { type: ColorType.Solid, color: bg }, textColor, fontFamily: 'IBM Plex Mono, monospace' },
       grid: { vertLines: { color: gridColor }, horzLines: { color: gridColor } },
-      crosshair: { vertLine: { color: '#6366f1', width: 1, style: 2 }, horzLine: { color: '#6366f1', width: 1, style: 2 } },
+      crosshair: { vertLine: { color: '#e8ae49', width: 1, style: 2 }, horzLine: { color: '#e8ae49', width: 1, style: 2 } },
       rightPriceScale: { borderColor: gridColor }, timeScale: { borderColor: gridColor, timeVisible: true },
     })
 
     const series = chart.addCandlestickSeries({
-      upColor: '#22c55e', downColor: '#ef4444', borderUpColor: '#22c55e', borderDownColor: '#ef4444', wickUpColor: '#22c55e', wickDownColor: '#ef4444',
+      upColor: '#2fcf8e', downColor: '#f4615a', borderUpColor: '#2fcf8e', borderDownColor: '#f4615a', wickUpColor: '#2fcf8e', wickDownColor: '#f4615a',
     })
 
     chartRef.current = chart; seriesRef.current = series
@@ -41,7 +41,14 @@ export default function PriceChart({ data, symbol, height = 400 }: PriceChartPro
 
   return (
     <Card>
-      {symbol && <h3 className="text-sm font-semibold">{symbol}</h3>}
+      {symbol && (
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="eyebrow">Price</div>
+            <h3 className="font-mono text-sm font-semibold tracking-tight tabular-nums">{symbol}</h3>
+          </div>
+        </div>
+      )}
       <CardContent><div ref={containerRef} /></CardContent>
     </Card>
   )

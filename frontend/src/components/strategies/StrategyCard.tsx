@@ -24,15 +24,17 @@ export default function StrategyCard({ strategy, onToggle, onConfigure }: Strate
   }
 
   return (
-    <Card className="hover:border-primary/30 transition-colors">
+    <Card className="transition-all hover:border-primary/40">
       <CardContent>
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h3 className="text-sm font-semibold">{strategy.name}</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">{strategy.type}</p>
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <h3 className="font-display text-base font-semibold tracking-tight">{strategy.name}</h3>
+            <p className="font-mono text-[0.7rem] uppercase tracking-wider text-muted-foreground">{strategy.type}</p>
           </div>
-          <div className="flex items-center gap-3">
-            <span className={`flex items-center gap-1 text-xs ${statusColors[strategy.status]}`}>
+          <div className="flex items-center gap-2">
+            <span
+              className={`flex items-center gap-1.5 rounded-[0.3rem] border border-border bg-muted px-2 py-1 font-mono text-[0.65rem] uppercase tracking-wider ${statusColors[strategy.status]}`}
+            >
               {statusIcons[strategy.status]}
               {strategy.status}
             </span>
@@ -50,45 +52,45 @@ export default function StrategyCard({ strategy, onToggle, onConfigure }: Strate
             <Switch checked={strategy.enabled} onCheckedChange={(checked) => onToggle(strategy.id, checked)} />
           </div>
         </div>
-        <p className="text-xs text-muted-foreground mb-4 line-clamp-2">{strategy.description}</p>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-3.5 h-3.5 text-muted-foreground" />
-            <div>
-              <div className="text-xs text-muted-foreground">P&L</div>
-              <div className={`text-sm font-mono font-semibold ${strategy.pnl >= 0 ? 'pnl-positive' : 'pnl-negative'}`}>
-                {formatCurrency(strategy.pnl)}
-              </div>
+        <p className="mb-5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{strategy.description}</p>
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-border bg-border">
+          <div className="space-y-1.5 bg-card p-3">
+            <div className="flex items-center gap-1.5">
+              <TrendingUp className="h-3 w-3 text-muted-foreground" strokeWidth={1.75} />
+              <span className="eyebrow !text-[0.6rem]">P&L</span>
+            </div>
+            <div className={`font-mono text-sm font-semibold tabular-nums ${strategy.pnl >= 0 ? 'pnl-positive' : 'pnl-negative'}`}>
+              {formatCurrency(strategy.pnl)}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Target className="w-3.5 h-3.5 text-muted-foreground" />
-            <div>
-              <div className="text-xs text-muted-foreground">Win Rate</div>
-              <div className="text-sm font-mono font-semibold">{(strategy.winRate * 100).toFixed(1)}%</div>
+          <div className="space-y-1.5 bg-card p-3">
+            <div className="flex items-center gap-1.5">
+              <Target className="h-3 w-3 text-muted-foreground" strokeWidth={1.75} />
+              <span className="eyebrow !text-[0.6rem]">Win Rate</span>
             </div>
+            <div className="font-mono text-sm font-semibold tabular-nums text-foreground">{(strategy.winRate * 100).toFixed(1)}%</div>
           </div>
-          <div className="flex items-center gap-2">
-            <BarChart3 className="w-3.5 h-3.5 text-muted-foreground" />
-            <div>
-              <div className="text-xs text-muted-foreground">Sharpe</div>
-              <div className="text-sm font-mono font-semibold">{strategy.sharpeRatio.toFixed(2)}</div>
+          <div className="space-y-1.5 bg-card p-3">
+            <div className="flex items-center gap-1.5">
+              <BarChart3 className="h-3 w-3 text-muted-foreground" strokeWidth={1.75} />
+              <span className="eyebrow !text-[0.6rem]">Sharpe</span>
             </div>
+            <div className="font-mono text-sm font-semibold tabular-nums text-foreground">{strategy.sharpeRatio.toFixed(2)}</div>
           </div>
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-3.5 h-3.5 text-muted-foreground" />
-            <div>
-              <div className="text-xs text-muted-foreground">Trades</div>
-              <div className="text-sm font-mono font-semibold">{strategy.tradesCount}</div>
+          <div className="space-y-1.5 bg-card p-3">
+            <div className="flex items-center gap-1.5">
+              <TrendingUp className="h-3 w-3 text-muted-foreground" strokeWidth={1.75} />
+              <span className="eyebrow !text-[0.6rem]">Trades</span>
             </div>
+            <div className="font-mono text-sm font-semibold tabular-nums text-foreground">{strategy.tradesCount}</div>
           </div>
         </div>
         {strategy.lastSignal && (
           <>
             <Separator className="mt-4" />
-            <div className="flex items-center justify-between text-xs pt-3">
-              <span className="text-muted-foreground">Last Signal</span>
-              <span className="font-mono">{strategy.lastSignal}</span>
+            <div className="flex items-center justify-between pt-3 text-xs">
+              <span className="eyebrow">Last Signal</span>
+              <span className="font-mono tabular-nums text-foreground">{strategy.lastSignal}</span>
             </div>
           </>
         )}

@@ -4,8 +4,8 @@ interface AllocationSlice { label: string; value: number; color: string }
 interface AllocationDonutProps { slices: AllocationSlice[]; title?: string; size?: number }
 
 const DEFAULT_COLORS = [
-  '#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6',
-  '#06b6d4', '#f97316', '#ec4899', '#14b8a6', '#6366f1',
+  '#e8ae49', '#4fb6c4', '#2fcf8e', '#f4615a', '#c9923c',
+  '#7aa2c4', '#d9b86a', '#8a8275', '#5ec5a8', '#e0905a',
 ]
 
 export default function AllocationDonut({ slices, title = 'Allocation', size = 180 }: AllocationDonutProps) {
@@ -13,7 +13,10 @@ export default function AllocationDonut({ slices, title = 'Allocation', size = 1
   if (total === 0) {
     return (
       <Card>
-        <h3 className="text-sm font-semibold">{title}</h3>
+        <div className="space-y-1">
+          <div className="eyebrow">Portfolio</div>
+          <h3 className="font-display text-sm font-semibold tracking-tight">{title}</h3>
+        </div>
         <CardContent className="flex items-center justify-center h-48 text-muted-foreground text-sm">
           No allocation data
         </CardContent>
@@ -47,16 +50,19 @@ export default function AllocationDonut({ slices, title = 'Allocation', size = 1
 
   return (
     <Card>
-      <h3 className="text-sm font-semibold">{title}</h3>
+      <div className="space-y-1">
+        <div className="eyebrow">Portfolio</div>
+        <h3 className="font-display text-sm font-semibold tracking-tight">{title}</h3>
+      </div>
       <CardContent className="flex items-center gap-6">
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
           {paths}
           <text x={center} y={center - 8} textAnchor="middle"
-            className="fill-foreground text-lg font-bold" style={{ fontSize: '16px' }}>
+            className="fill-foreground font-mono font-semibold" style={{ fontSize: '16px', fontFamily: 'IBM Plex Mono, monospace' }}>
             ${(total / 1000).toFixed(0)}k
           </text>
           <text x={center} y={center + 12} textAnchor="middle"
-            className="fill-muted-foreground" style={{ fontSize: '10px' }}>
+            className="fill-muted-foreground" style={{ fontSize: '9px', fontFamily: 'IBM Plex Mono, monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             Total
           </text>
         </svg>
@@ -68,7 +74,7 @@ export default function AllocationDonut({ slices, title = 'Allocation', size = 1
                   style={{ backgroundColor: slice.color || DEFAULT_COLORS[i % DEFAULT_COLORS.length] }} />
                 <span className="text-muted-foreground">{slice.label}</span>
               </div>
-              <span className="font-mono">{((slice.value / total) * 100).toFixed(1)}%</span>
+              <span className="font-mono tabular-nums">{((slice.value / total) * 100).toFixed(1)}%</span>
             </div>
           ))}
         </div>

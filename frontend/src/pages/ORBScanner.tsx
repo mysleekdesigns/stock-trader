@@ -6,12 +6,12 @@ import {
   TrendingUp,
   BarChart3,
   Clock,
-  Crosshair,
   Volume2,
   Settings2,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import ORBChart from '../components/charts/ORBChart'
 import { scanORB, getORBSignals, updateORBConfig } from '../api/client'
@@ -75,52 +75,51 @@ export default function ORBScanner() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold flex items-center gap-2">
-            <Crosshair className="w-5 h-5 text-primary" />
-            ORB Scanner
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Opening Range Breakout scanner with volume + VWAP confirmation
-          </p>
+      <div className="animate-rise space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="eyebrow">03 — ORB Scanner</div>
+            <h1 className="font-display text-3xl font-semibold tracking-tight">ORB Scanner</h1>
+            <p className="text-sm text-muted-foreground">
+              Opening Range Breakout scanner with volume + VWAP confirmation
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowConfig(!showConfig)}
+            >
+              <Settings2 className="mr-1 h-4 w-4" />
+              Config
+            </Button>
+          </div>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowConfig(!showConfig)}
-        >
-          <Settings2 className="w-4 h-4 mr-1" />
-          Config
-        </Button>
+        <div className="rule" />
       </div>
 
       {/* Config Panel */}
       {showConfig && (
-        <Card>
+        <Card className="animate-rise">
           <CardContent className="pt-4">
             <div className="flex items-end gap-4">
               <div>
-                <label className="text-xs text-muted-foreground block mb-1">
-                  Volume Multiplier
-                </label>
+                <label className="eyebrow mb-2 block">Volume Multiplier</label>
                 <Input
                   value={volMult}
                   onChange={(e) => setVolMult(e.target.value)}
-                  className="w-32"
+                  className="w-32 font-mono tabular-nums"
                   type="number"
                   step="0.1"
                   min="1"
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground block mb-1">
-                  Signal Cutoff (EST)
-                </label>
+                <label className="eyebrow mb-2 block">Signal Cutoff (EST)</label>
                 <Input
                   value={cutoff}
                   onChange={(e) => setCutoff(e.target.value)}
-                  className="w-32"
+                  className="w-32 font-mono tabular-nums"
                   placeholder="11:30"
                 />
               </div>
@@ -133,48 +132,46 @@ export default function ORBScanner() {
       )}
 
       {/* Search */}
-      <Card>
+      <Card className="animate-rise" style={{ animationDelay: '80ms' }}>
         <CardContent className="pt-4">
           <div className="flex items-center gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={symbol}
                 onChange={(e) => setSymbol(e.target.value.toUpperCase())}
                 onKeyDown={(e) => e.key === 'Enter' && handleScan()}
                 placeholder="Enter symbol (e.g. AAPL)"
-                className="pl-9"
+                className="pl-9 font-mono tracking-wide"
               />
             </div>
             <Button onClick={() => handleScan()} disabled={loading || !symbol.trim()}>
               {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
               ) : (
-                <Activity className="w-4 h-4 mr-1" />
+                <Activity className="mr-1 h-4 w-4" />
               )}
               Scan
             </Button>
           </div>
-          <div className="flex items-center gap-2 mt-3">
-            <span className="text-xs text-muted-foreground">Quick:</span>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="eyebrow">Quick</span>
             {POPULAR_SYMBOLS.map((s) => (
-              <Button
+              <button
                 key={s}
-                variant="ghost"
-                size="sm"
-                className="h-7 px-2 text-xs"
                 onClick={() => handleScan(s)}
+                className="rounded-md border border-border bg-secondary/40 px-2 py-1 font-mono text-[0.7rem] tracking-wide text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
               >
                 {s}
-              </Button>
+              </button>
             ))}
           </div>
         </CardContent>
       </Card>
 
       {error && (
-        <Card className="border-destructive">
-          <CardContent className="pt-4 text-sm text-destructive">{error}</CardContent>
+        <Card className="animate-rise border-destructive/50 bg-destructive/5">
+          <CardContent className="pt-4 font-mono text-sm text-destructive">{error}</CardContent>
         </Card>
       )}
 
@@ -182,53 +179,58 @@ export default function ORBScanner() {
       {scanResult && (
         <>
           {/* State Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card>
+          <div
+            className="grid animate-rise grid-cols-2 gap-4 md:grid-cols-4"
+            style={{ animationDelay: '160ms' }}
+          >
+            <Card className="transition-colors hover:border-primary/40">
               <CardContent className="pt-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="w-4 h-4 text-orange-500" />
-                  <span className="text-xs text-muted-foreground">OR High</span>
+                <div className="mb-2 flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  <span className="eyebrow">OR High</span>
                 </div>
-                <div className="text-lg font-mono font-semibold">
+                <div className="font-mono text-lg font-semibold tabular-nums text-foreground">
                   {scanResult.state.or_high?.toFixed(2) ?? '—'}
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="transition-colors hover:border-primary/40">
               <CardContent className="pt-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <Volume2 className="w-4 h-4 text-blue-500" />
-                  <span className="text-xs text-muted-foreground">OR Avg Volume</span>
+                <div className="mb-2 flex items-center gap-2">
+                  <Volume2 className="h-4 w-4" style={{ color: '#4fb6c4' }} />
+                  <span className="eyebrow">OR Avg Volume</span>
                 </div>
-                <div className="text-lg font-mono font-semibold">
+                <div className="font-mono text-lg font-semibold tabular-nums text-foreground">
                   {scanResult.state.or_avg_volume
                     ? Math.round(scanResult.state.or_avg_volume).toLocaleString()
                     : '—'}
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="transition-colors hover:border-primary/40">
               <CardContent className="pt-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <BarChart3 className="w-4 h-4 text-indigo-500" />
-                  <span className="text-xs text-muted-foreground">VWAP</span>
+                <div className="mb-2 flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" style={{ color: '#4fb6c4' }} />
+                  <span className="eyebrow">VWAP</span>
                 </div>
-                <div className="text-lg font-mono font-semibold">
+                <div className="font-mono text-lg font-semibold tabular-nums text-foreground">
                   {scanResult.state.vwap?.toFixed(2) ?? '—'}
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="transition-colors hover:border-primary/40">
               <CardContent className="pt-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <Clock className="w-4 h-4 text-green-500" />
-                  <span className="text-xs text-muted-foreground">Status</span>
+                <div className="mb-2 flex items-center gap-2">
+                  <Clock
+                    className={`h-4 w-4 ${scanResult.state.breached ? 'text-up' : 'text-muted-foreground'}`}
+                  />
+                  <span className="eyebrow">Status</span>
                 </div>
-                <div className="text-lg font-semibold">
+                <div className="font-mono text-lg font-semibold">
                   {scanResult.state.breached ? (
                     <span className="text-up">Breakout</span>
                   ) : scanResult.state.or_complete ? (
-                    <span className="text-yellow-500">Watching</span>
+                    <span className="text-primary">Watching</span>
                   ) : (
                     <span className="text-muted-foreground">Building OR</span>
                   )}
@@ -239,34 +241,39 @@ export default function ORBScanner() {
 
           {/* Signal Detail */}
           {scanResult.signal && (
-            <Card className="border-up/50 bg-up/5">
+            <Card
+              className="animate-rise border-up/40 bg-up/8"
+              style={{ animationDelay: '240ms' }}
+            >
               <CardContent className="pt-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2 h-2 rounded-full bg-up animate-pulse" />
-                  <span className="text-sm font-semibold text-up">ORB Breakout Signal</span>
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-up">
+                    <span className="absolute inset-0 inline-flex rounded-full bg-up animate-pulse-ring" />
+                  </span>
+                  <span className="eyebrow !text-up">ORB Breakout Signal</span>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <span className="text-xs text-muted-foreground">Direction</span>
-                    <div className="font-mono font-semibold">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  <div className="space-y-1.5">
+                    <span className="eyebrow">Direction</span>
+                    <div className="font-mono text-lg font-semibold tabular-nums text-up">
                       {scanResult.signal.direction.toUpperCase()}
                     </div>
                   </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground">Strength</span>
-                    <div className="font-mono font-semibold">
+                  <div className="space-y-1.5">
+                    <span className="eyebrow">Strength</span>
+                    <div className="font-mono text-lg font-semibold tabular-nums text-foreground">
                       {(scanResult.signal.strength * 100).toFixed(1)}%
                     </div>
                   </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground">Confidence</span>
-                    <div className="font-mono font-semibold">
+                  <div className="space-y-1.5">
+                    <span className="eyebrow">Confidence</span>
+                    <div className="font-mono text-lg font-semibold tabular-nums text-foreground">
                       {(scanResult.signal.confidence * 100).toFixed(1)}%
                     </div>
                   </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground">Volume Ratio</span>
-                    <div className="font-mono font-semibold">
+                  <div className="space-y-1.5">
+                    <span className="eyebrow">Volume Ratio</span>
+                    <div className="font-mono text-lg font-semibold tabular-nums text-foreground">
                       {scanResult.signal.metadata?.volume_ratio ?? '—'}x
                     </div>
                   </div>
@@ -277,56 +284,60 @@ export default function ORBScanner() {
 
           {/* Chart */}
           {scanResult.bars.length > 0 && (
-            <ORBChart
-              data={scanResult.bars}
-              overlay={orbOverlay}
-              symbol={scanResult.symbol}
-              height={500}
-            />
+            <div className="animate-rise" style={{ animationDelay: '320ms' }}>
+              <ORBChart
+                data={scanResult.bars}
+                overlay={orbOverlay}
+                symbol={scanResult.symbol}
+                height={500}
+              />
+            </div>
           )}
         </>
       )}
 
       {/* Recent Signals Table */}
       {signals.length > 0 && (
-        <Card>
+        <Card className="animate-rise" style={{ animationDelay: '400ms' }}>
           <CardContent className="pt-4">
-            <h3 className="text-sm font-semibold mb-3">Recent ORB Signals</h3>
+            <div className="eyebrow mb-4">Recent ORB Signals</div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b text-xs text-muted-foreground">
-                    <th className="text-left py-2 pr-4">Symbol</th>
-                    <th className="text-left py-2 pr-4">Direction</th>
-                    <th className="text-right py-2 pr-4">Strength</th>
-                    <th className="text-right py-2 pr-4">Confidence</th>
-                    <th className="text-right py-2 pr-4">Vol Ratio</th>
-                    <th className="text-right py-2">Time</th>
+                  <tr className="border-b border-border">
+                    <th className="eyebrow py-2 pr-4 text-left font-normal">Symbol</th>
+                    <th className="eyebrow py-2 pr-4 text-left font-normal">Direction</th>
+                    <th className="eyebrow py-2 pr-4 text-right font-normal">Strength</th>
+                    <th className="eyebrow py-2 pr-4 text-right font-normal">Confidence</th>
+                    <th className="eyebrow py-2 pr-4 text-right font-normal">Vol Ratio</th>
+                    <th className="eyebrow py-2 text-right font-normal">Time</th>
                   </tr>
                 </thead>
                 <tbody>
                   {signals.map((sig, i) => (
                     <tr
                       key={`${sig.symbol}-${sig.timestamp}-${i}`}
-                      className="border-b last:border-0 hover:bg-muted/50 cursor-pointer"
+                      className="cursor-pointer border-b border-border transition-colors last:border-0 hover:bg-muted/50"
                       onClick={() => handleScan(sig.symbol)}
                     >
-                      <td className="py-2 pr-4 font-mono font-semibold">{sig.symbol}</td>
-                      <td className="py-2 pr-4">
-                        <span className="text-up font-medium">
-                          {sig.direction.toUpperCase()}
-                        </span>
+                      <td className="py-2.5 pr-4 font-mono font-semibold tabular-nums text-foreground">
+                        {sig.symbol}
                       </td>
-                      <td className="py-2 pr-4 text-right font-mono">
+                      <td className="py-2.5 pr-4">
+                        <Badge variant={sig.direction.toLowerCase() === 'short' ? 'down' : 'up'}>
+                          {sig.direction.toUpperCase()}
+                        </Badge>
+                      </td>
+                      <td className="py-2.5 pr-4 text-right font-mono tabular-nums">
                         {(sig.strength * 100).toFixed(1)}%
                       </td>
-                      <td className="py-2 pr-4 text-right font-mono">
+                      <td className="py-2.5 pr-4 text-right font-mono tabular-nums">
                         {(sig.confidence * 100).toFixed(1)}%
                       </td>
-                      <td className="py-2 pr-4 text-right font-mono">
+                      <td className="py-2.5 pr-4 text-right font-mono tabular-nums">
                         {sig.metadata?.volume_ratio ?? '—'}x
                       </td>
-                      <td className="py-2 text-right text-muted-foreground text-xs">
+                      <td className="py-2.5 text-right font-mono text-xs tabular-nums text-muted-foreground">
                         {new Date(sig.timestamp).toLocaleTimeString()}
                       </td>
                     </tr>

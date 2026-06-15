@@ -105,20 +105,21 @@ function equityToDrawdown(
 function StatCard({ icon: Icon, label, value, positive }: {
   icon: React.ElementType; label: string; value: string; positive?: boolean
 }) {
+  const valueColor =
+    positive === undefined ? 'text-foreground' : positive ? 'text-up' : 'text-down'
   return (
-    <Card>
-      <CardContent className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-          <Icon className="w-4 h-4 text-primary" />
+    <Card className="gap-3 transition-colors hover:border-primary/40">
+      <CardContent className="space-y-2.5">
+        <div className="flex items-center justify-between">
+          <span className="eyebrow">{label}</span>
+          <Icon
+            className={`h-4 w-4 ${positive === undefined ? 'text-muted-foreground' : 'text-primary'}`}
+            strokeWidth={1.75}
+          />
         </div>
-        <div className="min-w-0">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
-          <p className={`text-lg font-bold font-mono leading-tight ${
-            positive === undefined ? '' : positive ? 'text-up' : 'text-down'
-          }`}>
-            {value}
-          </p>
-        </div>
+        <p className={`font-mono text-2xl font-semibold leading-none tabular-nums ${valueColor}`}>
+          {value}
+        </p>
       </CardContent>
     </Card>
   )
@@ -193,16 +194,32 @@ export default function Backtest() {
   const trades = result?.trades ?? []
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-semibold">Backtest</h1>
+    <div className="space-y-7">
+      {/* ── page header ── */}
+      <div className="animate-rise space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="eyebrow">04 — Backtest Lab</div>
+            <h1 className="font-display text-3xl font-semibold tracking-tight">Backtest</h1>
+            <p className="text-sm text-muted-foreground">
+              Replay strategies over historical data and measure risk-adjusted performance.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="eyebrow">Timeframe</span>
+            <span className="font-mono text-sm font-medium tabular-nums text-foreground">{timeframe}</span>
+          </div>
+        </div>
+        <div className="rule" />
+      </div>
 
       {/* ── configuration panel ── */}
-      <Card>
-        <CardContent className="space-y-4">
-          <h3 className="text-sm font-semibold">Configuration</h3>
+      <Card className="animate-rise" style={{ animationDelay: '80ms' }}>
+        <CardContent className="space-y-5">
+          <div className="eyebrow">Configuration</div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Strategy</Label>
+              <Label className="eyebrow">Strategy</Label>
               <Select value={strategy} onValueChange={setStrategy}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select strategy..." />
@@ -221,24 +238,25 @@ export default function Backtest() {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Start Date</Label>
-              <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              <Label className="eyebrow">Start Date</Label>
+              <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="font-mono tabular-nums" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">End Date</Label>
-              <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              <Label className="eyebrow">End Date</Label>
+              <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="font-mono tabular-nums" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Symbols</Label>
+              <Label className="eyebrow">Symbols</Label>
               <Input
                 type="text"
                 value={symbols}
                 onChange={(e) => setSymbols(e.target.value)}
                 placeholder="AAPL,MSFT,GOOGL"
+                className="font-mono tabular-nums"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Timeframe</Label>
+              <Label className="eyebrow">Timeframe</Label>
               <Select value={timeframe} onValueChange={handleTimeframeChange}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select timeframe..." />
@@ -252,13 +270,14 @@ export default function Backtest() {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Initial Capital</Label>
+              <Label className="eyebrow">Initial Capital</Label>
               <Input
                 type="number"
                 value={initialCapital}
                 onChange={(e) => setInitialCapital(e.target.value)}
                 min={1000}
                 step={1000}
+                className="font-mono tabular-nums"
               />
             </div>
             <div className="flex items-end">
@@ -288,10 +307,10 @@ export default function Backtest() {
 
       {/* ── error state ── */}
       {error && (
-        <Card className="border-destructive/30 bg-destructive/5">
+        <Card className="animate-rise border-destructive/40 bg-destructive/5">
           <CardContent className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-destructive shrink-0" />
-            <p className="text-sm text-destructive">{error}</p>
+            <span className="h-2 w-2 shrink-0 rounded-full bg-destructive" />
+            <p className="font-mono text-sm text-destructive">{error}</p>
           </CardContent>
         </Card>
       )}
@@ -300,7 +319,10 @@ export default function Backtest() {
       {result && result.status === 'completed' && (
         <>
           {/* key metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div
+            className="animate-rise grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
+            style={{ animationDelay: '160ms' }}
+          >
             <StatCard
               icon={TrendingUp}
               label="Total Return"
@@ -351,50 +373,58 @@ export default function Backtest() {
           </div>
 
           {/* charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div
+            className="animate-rise grid grid-cols-1 lg:grid-cols-2 gap-6"
+            style={{ animationDelay: '240ms' }}
+          >
             <EquityCurve data={equityCurveData} title="Backtest Equity Curve" />
             <DrawdownChart data={drawdownData} />
           </div>
 
           {/* trades table */}
           {trades.length > 0 && (
-            <Card>
-              <CardContent className="space-y-3">
-                <h3 className="text-sm font-semibold">
-                  Trade Log
-                  <span className="text-muted-foreground font-normal ml-2">({trades.length} trades)</span>
-                </h3>
+            <Card className="animate-rise" style={{ animationDelay: '320ms' }}>
+              <CardContent className="space-y-4">
+                <div className="flex items-end justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="eyebrow">Trade Log</div>
+                    <h3 className="font-display text-lg font-semibold tracking-tight">Executions</h3>
+                  </div>
+                  <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                    {trades.length} trades
+                  </span>
+                </div>
                 <div className="max-h-80 overflow-y-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Symbol</TableHead>
-                        <TableHead>Side</TableHead>
-                        <TableHead className="text-right">Qty</TableHead>
-                        <TableHead className="text-right">Entry</TableHead>
-                        <TableHead className="text-right">Exit</TableHead>
-                        <TableHead className="text-right">P&L</TableHead>
-                        <TableHead>Date</TableHead>
+                        <TableHead className="eyebrow">Symbol</TableHead>
+                        <TableHead className="eyebrow">Side</TableHead>
+                        <TableHead className="eyebrow text-right">Qty</TableHead>
+                        <TableHead className="eyebrow text-right">Entry</TableHead>
+                        <TableHead className="eyebrow text-right">Exit</TableHead>
+                        <TableHead className="eyebrow text-right">P&L</TableHead>
+                        <TableHead className="eyebrow">Date</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {trades.slice(0, 50).map((t, i) => {
                         const pnl = Number(t.pnl ?? 0)
                         return (
-                          <TableRow key={i}>
-                            <TableCell className="font-mono font-medium">{String(t.symbol)}</TableCell>
+                          <TableRow key={i} className="transition-colors hover:bg-accent/40">
+                            <TableCell className="font-mono font-medium tabular-nums">{String(t.symbol)}</TableCell>
                             <TableCell>
-                              <Badge variant={t.side === 'buy' ? 'up' : 'down'} className="text-[10px] uppercase">
+                              <Badge variant={t.side === 'buy' ? 'up' : 'down'}>
                                 {String(t.side)}
                               </Badge>
                             </TableCell>
-                            <TableCell className="text-right font-mono">{String(t.quantity)}</TableCell>
-                            <TableCell className="text-right font-mono">${Number(t.entry_price).toFixed(2)}</TableCell>
-                            <TableCell className="text-right font-mono">${Number(t.exit_price).toFixed(2)}</TableCell>
-                            <TableCell className={`text-right font-mono font-medium ${pnl >= 0 ? 'text-up' : 'text-down'}`}>
+                            <TableCell className="text-right font-mono tabular-nums">{String(t.quantity)}</TableCell>
+                            <TableCell className="text-right font-mono tabular-nums">${Number(t.entry_price).toFixed(2)}</TableCell>
+                            <TableCell className="text-right font-mono tabular-nums">${Number(t.exit_price).toFixed(2)}</TableCell>
+                            <TableCell className={`text-right font-mono font-medium tabular-nums ${pnl >= 0 ? 'text-up' : 'text-down'}`}>
                               {pnl >= 0 ? '+' : ''}{pnl.toFixed(2)}
                             </TableCell>
-                            <TableCell className="text-xs text-muted-foreground">
+                            <TableCell className="font-mono text-xs tabular-nums text-muted-foreground">
                               {t.date ? new Date(String(t.date)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
                             </TableCell>
                           </TableRow>
@@ -404,7 +434,7 @@ export default function Backtest() {
                   </Table>
                 </div>
                 {trades.length > 50 && (
-                  <p className="text-xs text-muted-foreground text-center">
+                  <p className="text-center font-mono text-xs tabular-nums text-muted-foreground">
                     Showing 50 of {trades.length} trades
                   </p>
                 )}

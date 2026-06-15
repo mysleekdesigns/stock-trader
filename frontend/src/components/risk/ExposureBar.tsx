@@ -9,7 +9,7 @@ interface ExposureBarProps {
 }
 
 export default function ExposureBar({
-  label, value, maxValue, color = '#3b82f6', showPercent = true,
+  label, value, maxValue, color = '#4fb6c4', showPercent = true,
 }: ExposureBarProps) {
   const pct = maxValue > 0 ? Math.min((Math.abs(value) / maxValue) * 100, 100) : 0
 
@@ -17,7 +17,7 @@ export default function ExposureBar({
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between text-xs">
         <span className="text-muted-foreground">{label}</span>
-        <span className="font-mono">
+        <span className="font-mono tabular-nums">
           {showPercent ? `${pct.toFixed(1)}%` : value.toLocaleString()}
         </span>
       </div>
@@ -42,12 +42,15 @@ export function ExposureSummary({
 }: ExposureSummaryProps) {
   return (
     <Card>
-      <h3 className="text-sm font-semibold">Exposure</h3>
+      <div className="space-y-1">
+        <div className="eyebrow">Risk</div>
+        <h3 className="font-display text-sm font-semibold tracking-tight">Exposure</h3>
+      </div>
       <CardContent className="space-y-4">
-        <ExposureBar label="Long" value={longExposure} maxValue={totalValue} color="#22c55e" />
-        <ExposureBar label="Short" value={shortExposure} maxValue={totalValue} color="#ef4444" />
-        <ExposureBar label="Net" value={netExposure} maxValue={totalValue} color="#3b82f6" />
-        <ExposureBar label="Gross" value={grossExposure} maxValue={totalValue} color="#f59e0b" />
+        <ExposureBar label="Long" value={longExposure} maxValue={totalValue} color="#2fcf8e" />
+        <ExposureBar label="Short" value={shortExposure} maxValue={totalValue} color="#f4615a" />
+        <ExposureBar label="Net" value={netExposure} maxValue={totalValue} color="#4fb6c4" />
+        <ExposureBar label="Gross" value={grossExposure} maxValue={totalValue} color="#e8ae49" />
       </CardContent>
     </Card>
   )

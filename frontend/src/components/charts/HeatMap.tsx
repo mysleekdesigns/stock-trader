@@ -25,7 +25,10 @@ export default function HeatMap({ labels, matrix, title = 'Correlation', min = -
   if (!hasData) {
     return (
       <Card>
-        <h3 className="text-sm font-semibold">{title}</h3>
+        <div className="space-y-1">
+          <div className="eyebrow">Matrix</div>
+          <h3 className="font-display text-sm font-semibold tracking-tight">{title}</h3>
+        </div>
         <CardContent className="flex items-center justify-center h-48 text-muted-foreground text-sm">
           No correlation data
         </CardContent>
@@ -40,15 +43,18 @@ export default function HeatMap({ labels, matrix, title = 'Correlation', min = -
     const clamped = Math.max(min, Math.min(max, value))
     if (clamped >= mid) {
       const t = (clamped - mid) / (max - mid || 1) // 0..1
-      return { background: `rgba(34, 197, 94, ${0.12 + t * 0.78})`, color: t > 0.55 ? '#fff' : 'var(--foreground)' }
+      return { background: `rgba(47, 207, 142, ${0.12 + t * 0.78})`, color: t > 0.55 ? '#fff' : 'var(--foreground)' }
     }
     const t = (mid - clamped) / (mid - min || 1) // 0..1
-    return { background: `rgba(239, 68, 68, ${0.12 + t * 0.78})`, color: t > 0.55 ? '#fff' : 'var(--foreground)' }
+    return { background: `rgba(244, 97, 90, ${0.12 + t * 0.78})`, color: t > 0.55 ? '#fff' : 'var(--foreground)' }
   }
 
   return (
     <Card>
-      <h3 className="text-sm font-semibold">{title}</h3>
+      <div className="space-y-1">
+        <div className="eyebrow">Matrix</div>
+        <h3 className="font-display text-sm font-semibold tracking-tight">{title}</h3>
+      </div>
       <CardContent className="overflow-x-auto">
         <table className="border-separate border-spacing-1 text-xs font-mono">
           <thead>
@@ -83,11 +89,11 @@ export default function HeatMap({ labels, matrix, title = 'Correlation', min = -
             ))}
           </tbody>
         </table>
-        <div className="flex items-center gap-2 mt-3 text-[10px] text-muted-foreground">
+        <div className="flex items-center gap-2 mt-3 font-mono text-[10px] tabular-nums text-muted-foreground">
           <span>{min.toFixed(1)}</span>
           <div
             className="h-2 flex-1 rounded-full"
-            style={{ background: 'linear-gradient(to right, #ef4444, rgba(120,120,120,0.25), #22c55e)' }}
+            style={{ background: 'linear-gradient(to right, #f4615a, rgba(138,130,117,0.25), #2fcf8e)' }}
           />
           <span>{max.toFixed(1)}</span>
         </div>
