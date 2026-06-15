@@ -1,0 +1,30 @@
+# ─── Risk Parameters ─────────────────────────────────────────────────────────
+# Hard limits enforced by the risk manager before any order reaches the broker.
+
+portfolio:
+  max_drawdown: 0.10           # 10 % max drawdown from equity peak
+  max_daily_loss: 0.03         # 3 % max loss in a single trading day
+  max_gross_exposure: 2.0      # 200 % gross (long + |short|) / equity
+  max_net_exposure: 1.0        # 100 % net  (long - |short|) / equity
+
+position:
+  max_single_position: 0.05    # 5 % of equity in any one name
+  max_sector_exposure: 0.25    # 25 % of equity in any one sector
+  max_correlated_positions: 3  # Max positions with correlation > 0.7
+
+stop_loss:
+  type: trailing_atr           # Trailing stop keyed off ATR
+  atr_multiplier: 2.5          # Stop distance = 2.5 x ATR
+  max_hold_days: 20            # Force-close after 20 trading days
+
+sizing:
+  method: kelly                # Primary sizing via Kelly criterion
+  kelly_fraction_min: 0.25     # Minimum Kelly fraction (quarter-Kelly)
+  kelly_fraction_max: 0.50     # Maximum Kelly fraction (half-Kelly)
+  fallback_method: fixed_fractional
+  fixed_fraction: 0.02         # 2 % of equity when Kelly is unavailable
+
+# ── Model health triggers ────────────────────────────────────────────────────
+retrain_triggers:
+  min_sharpe: 0.5              # Retrain if rolling Sharpe drops below this
+  min_accuracy: 0.52           # Retrain if directional accuracy drops below this

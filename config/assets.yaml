@@ -1,0 +1,37 @@
+# ─── Asset Universe ──────────────────────────────────────────────────────────
+# Defines tradeable instruments, supported timeframes, and sector mappings.
+
+asset_classes:
+  us_equity:
+    symbols:
+      - SPY    # S&P 500 ETF
+      - QQQ    # Nasdaq-100 ETF
+      - IWM    # Russell 2000 ETF
+      - AAPL   # Apple
+      - MSFT   # Microsoft
+      - GOOGL  # Alphabet
+      - AMZN   # Amazon
+      - NVDA   # NVIDIA
+      - META   # Meta Platforms
+      - TSLA   # Tesla
+    timeframes:
+      - 1m
+      - 5m
+      - 15m
+      - 1h
+      - 1d
+    default_lookback_days: 504  # ~2 trading years
+
+  # ── SPDR Sector ETFs ────────────────────────────────────────────────────────
+  sectors:
+    XLF: Financials
+    XLK: Technology
+    XLE: Energy
+    XLV: Healthcare
+    XLI: Industrials
+    XLP: Consumer Staples
+    XLY: Consumer Discretionary
+    XLU: Utilities
+    XLB: Materials
+    XLRE: Real Estate
+    XLC: Communication Services

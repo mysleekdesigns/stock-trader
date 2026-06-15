@@ -1,16 +1,21 @@
-import { Play, Pause, AlertTriangle, TrendingUp, BarChart3, Target } from 'lucide-react'
+import { Play, Pause, AlertTriangle, TrendingUp, BarChart3, Target, Settings2 } from 'lucide-react'
 import type { Strategy } from '../../api/client'
 import { Card, CardContent } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(value)
 }
 
-interface StrategyCardProps { strategy: Strategy; onToggle: (id: string, enabled: boolean) => void }
+interface StrategyCardProps {
+  strategy: Strategy
+  onToggle: (id: string, enabled: boolean) => void
+  onConfigure?: (id: string) => void
+}
 
-export default function StrategyCard({ strategy, onToggle }: StrategyCardProps) {
+export default function StrategyCard({ strategy, onToggle, onConfigure }: StrategyCardProps) {
   const statusColors = { running: 'text-up', stopped: 'text-muted-foreground', error: 'text-down' }
   const statusIcons = {
     running: <Play className="w-3.5 h-3.5" />,
@@ -31,6 +36,17 @@ export default function StrategyCard({ strategy, onToggle }: StrategyCardProps) 
               {statusIcons[strategy.status]}
               {strategy.status}
             </span>
+            {onConfigure && (
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={() => onConfigure(strategy.id)}
+                aria-label="Configure strategy"
+                title="Configure parameters"
+              >
+                <Settings2 />
+              </Button>
+            )}
             <Switch checked={strategy.enabled} onCheckedChange={(checked) => onToggle(strategy.id, checked)} />
           </div>
         </div>

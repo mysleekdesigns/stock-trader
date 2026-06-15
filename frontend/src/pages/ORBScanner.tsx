@@ -13,10 +13,9 @@ import {
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
 import ORBChart from '../components/charts/ORBChart'
-import { scanORB, getORBSignals, updateORBConfig, getORBConfig } from '../api/client'
-import type { ORBScanResult, ORBSignalResponse, ORBConfigResponse } from '../api/client'
+import { scanORB, getORBSignals, updateORBConfig } from '../api/client'
+import type { ORBScanResult, ORBSignalResponse } from '../api/client'
 
 const POPULAR_SYMBOLS = ['AAPL', 'TSLA', 'NVDA', 'AMD', 'META', 'MSFT', 'AMZN', 'GOOGL']
 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { getOrders, cancelOrder } from '../api/client'
-import type { Order } from '../api/client'
 import { useTradeStore } from '../stores/useTradeStore'
 import TradeLog from '../components/orders/TradeLog'
 import { Loader2 } from 'lucide-react'

@@ -1,0 +1,83 @@
+# ─── Strategy Configuration ──────────────────────────────────────────────────
+# Each strategy declares its weight in the composite signal and tunable params.
+
+momentum:
+  enabled: true
+  weight: 0.20
+  params:
+    fast_ma_period: 10         # Fast moving-average window
+    slow_ma_period: 50         # Slow moving-average window
+    adx_threshold: 25          # Minimum ADX to confirm trend strength
+    breakout_lookback: 20      # Bars to look back for breakout detection
+    min_volume_ratio: 1.5      # Volume must exceed this multiple of its MA
+
+ml_alpha:
+  enabled: true
+  weight: 0.40
+  params:
+    min_confidence: 0.55       # Minimum predicted-probability threshold
+    horizons: [1, 2, 5, 10, 21]  # Forward-return horizons (trading days)
+    ensemble_method: ridge_stacking
+    min_weight_floor: 0.05     # Floor for individual model weights
+
+mean_reversion:
+  enabled: false
+  weight: 0.15
+  params:
+    bb_period: 20              # Bollinger Band lookback
+    bb_std: 2.0                # Bollinger Band standard deviations
+    rsi_oversold: 30
+    rsi_overbought: 70
+    zscore_entry: 2.0          # Z-score to open a position
+    zscore_exit: 0.5           # Z-score to close a position
+
+# ── Rule-based strategies (long & short, stocks + crypto) ────────────────────
+donchian_breakout:            # Turtle-style trend following
+  enabled: true
+  weight: 0.15
+  params:
+    entry_period: 20           # Breakout channel for entries
+    exit_period: 10            # Opposite-extreme channel for exits
+    atr_stop_mult: 2.0         # Protective stop in ATR units
+    allow_short: true
+
+supertrend:                   # ATR-band trend following
+  enabled: true
+  weight: 0.15
+  params:
+    atr_multiplier: 3.0        # Band offset from hl2 in ATR units
+    allow_short: true
+
+macd_trend:                   # MACD(12,26,9) crossover with 200-SMA filter
+  enabled: true
+  weight: 0.10
+  params:
+    fast_period: 12
+    slow_period: 26
+    signal_period: 9
+    use_trend_filter: true
+    trend_sma: 200
+    allow_short: true
+
+connors_rsi2:                 # Short-term mean reversion (long/flat)
+  enabled: true
+  weight: 0.10
+  params:
+    rsi_period: 2
+    rsi_buy: 5.0               # Enter when RSI(2) drops below this
+    rsi_exit: 65.0             # Exit when RSI(2) rises above this
+    trend_sma: 200             # Only buy dips above this SMA
+    exit_sma: 5                # Or exit on a close back above this SMA
+
+dual_momentum:                # Absolute/time-series momentum (long/flat)
+  enabled: true
+  weight: 0.10
+  params:
+    lookback: 126              # Trailing-return window in bars (~6 months)
+    trend_sma: 200             # Price must exceed this SMA to invest
+    min_momentum: 0.0          # Minimum trailing return to be invested
+
+# ── Composite signal aggregation ─────────────────────────────────────────────
+composite:
+  min_agreement: 0.60          # Fraction of enabled strategies that must agree
+  rebalance_frequency: weekly  # How often the portfolio is rebalanced
